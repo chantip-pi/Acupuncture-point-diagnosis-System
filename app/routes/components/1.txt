@@ -1,0 +1,133 @@
+import { useEffect, useState } from "react";
+
+interface TreatmentCardProps {
+  treatment: {
+    treatment_id: number;
+    cost: number;
+    treatment_name: string;
+  };
+  item1: string;
+  item2: string;
+  item3: string;
+  onTreatmentSelect: (treatment: Treatment, isSelected: boolean) => void; // Callback to parent
+}
+
+interface Staff {
+  staff_id: number;
+  username: string;
+  staff_name: string;
+  staff_phone_number: string;
+  birthday: string;
+  gender: string;
+  role: string;
+  email: string;
+}
+
+interface Treatment {
+  treatment_id: number;
+  cost: number;
+  treatment_name: string;
+  item1: number;
+  item2: number;
+  item3: number;
+  doctor: number;
+}
+
+export default function TreatmentCard({ treatment, item1, item2, item3, onTreatmentSelect }: TreatmentCardProps) {
+  const [checked, setChecked] = useState(false);
+  const [staffList, setStaffList] = useState<Staff[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [doctor, setDoctor] = useState<number | null>(null);
+  const [item1Count, setItem1Count] = useState<number>(0);
+  const [item2Count, setItem2Count] = useState<number>(0);
+  const [item3Count, setItem3Count] = useState<number>(0);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch("https://dinosaur.prakasitj.com/staff/getStaffList");
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch staff data");
+        }
+
+        const data = await response.json();
+        setStaffList(data);
+      } catch (err) {
+        setError("Failed to load data");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleCheckboxChange = () => {
+    setChecked((prev) => !prev);
+    const selectedTreatment = {
+      treatment_id: treatment.treatment_id,
+      cost: treatment.cost,
+      treatment_name: treatment.treatment_name,
+      item1: item1Count,
+      item2: item2Count,
+      item3: item3Count,
+      doctor: doctor || 0, // Default to 0 if no doctor selected
+    };
+    onTreatmentSelect(selectedTreatment, !checked); // Send selected status back to parent
+  };
+
+  const handleDoctorChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setDoctor(parseInt(e.target.value, 10));
+  };
+
+  const handleItem1Change = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setItem1Count(parseInt(e.target.value, 10));
+  };
+
+  const handleItem2Change = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setItem2Count(parseInt(e.target.value, 10));
+  };
+
+  const handleItem3Change = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setItem3Count(parseInt(e.target.value, 10));
+  };
+
+  // Filter staff list to include only those with the role "Doctor"
+  const doctorList = staffList.filter((staff) => staff.role === "Doctor");
+
+  return (
+    <div className="flex flex-row pt-5 pl-5 pr-5 pb-6 bg-[#DCE8E9] rounded-3xl items-center gap-6">
+      <div
+        className="w-[7.5rem] h-24 rounded-3xl"
+        style={{ filter: "drop-shadow(0 0.25rem 0.125rem #AAB4B5)" }}
+      >
+        <img
+          className="object-cover w-full h-full rounded-3xl"
+          src={"https://www.petlandflorida.com/wp-content/uploads/2022/04/shutterstock_1290320698-1-scaled.jpg"}
+          alt="Treatment"
+        />
+      </div>
+
+      <div className="flex flex-col self-start gap-2 ">
+        <h1 className="text-2xl text-[#1FA1AF] pb-1">{treatment.treatment_name}</h1>
+        <InputRow text="Use" item={item1} onChange={handleItem1Change} />
+        <InputRow text="Use" item={item2} onChange={handleItem2Change} />
+        <InputRow text="Use" item={item3} onChange={handleItem3Change} />
+
+        <div className="flex flex-row gap-3 pt-2">
+          <h1>Choose Doctor:</h1>
+          <select className="w-[19.09rem] rounded-3xl text-center" onChange={handleDoctorChange}>
+            <option value="">-- Select Doctor --</option>
+            {doctorList.map((doctor) => (
+              <option key={doctor.staff_id} value={doctor.staff_id}>
+                {doctor.staff_name}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div className="flex flex-row justify-center items

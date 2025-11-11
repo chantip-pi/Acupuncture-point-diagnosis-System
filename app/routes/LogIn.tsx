@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "@remix-run/react";
+import { useLogin } from "~/presentation/hooks/useLogin";
 
 function LogIn() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const { login, loading, error: hookError } = useLogin();
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
@@ -16,28 +18,14 @@ function LogIn() {
       return;
     }
   
-    try {
-      const response = await fetch(`https://dinosaur.prakasitj.com/staff/login/${username}/${password}`);
-  
-      if (!response.ok) {
-        throw new Error("Invalid username or password");
-      }
-  
-      const data = await response.json();
-      console.log("Full response data:", data);  // Log to check the structure
-  
-      // Check if data is an array and access the first element
-      if (Array.isArray(data) && data[0]?.staff_id) {
-        // Login successful: save user to session storage and navigate to home
-        sessionStorage.setItem("currentUser", username);
-        navigate("/home");
-      } else {
-        // Login failed: display error message
-        setError("Invalid username or password.");
-      }
-    } catch (err) {
-      setError("Failed to login. Please try again.");
-      console.error(err);
+    setError("");
+    const staff = await login({ username, password });
+    
+    if (staff) {
+      sessionStorage.setItem("currentUser", username);
+      navigate("/home");
+    } else {
+      setError(hookError || "Invalid username or password.");
     }
   };  
 
@@ -80,9 +68,10 @@ function LogIn() {
             {error && <p className="text-red-500">{error}</p>}
             <button
               onClick={handleSubmit}
-              className="mt-10 py-2 px-3 bg-gradient-to-r from-[#2CD8] to-[#C5C1FF] text-white font-bold rounded-lg w-[70%] mx-auto block"
+              disabled={loading}
+              className="mt-10 py-2 px-3 bg-gradient-to-r from-[#2CD8] to-[#C5C1FF] text-white font-bold rounded-lg w-[70%] mx-auto block disabled:opacity-50"
             >
-              LOGIN
+              {loading ? "Logging in..." : "LOGIN"}
             </button>
           </div>
         </div>

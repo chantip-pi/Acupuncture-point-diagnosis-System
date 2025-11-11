@@ -1,5 +1,6 @@
 import React, { useState, ChangeEvent, FormEvent } from "react";
 import { useNavigate } from "@remix-run/react";
+import { useAddPatient } from "~/presentation/hooks/useAddPatient";
 
 function AddNewPatient() {
   const [formData, setFormData] = useState({
@@ -11,6 +12,7 @@ function AddNewPatient() {
     course_count: 0,
     first_visit_date: new Date().toISOString().slice(0, 10),
   });
+  const { addPatient, loading, error: hookError } = useAddPatient();
   const [error, setError] = useState<string>("");
   const navigate = useNavigate();
 
@@ -22,100 +24,30 @@ function AddNewPatient() {
     }));
   };
 
-  const validateForm = () => {
-    const { phone_number, birthday, course_count, appointment_date } = formData;
-    const telRegex = /^\d{10}$/;
-
-    if (!telRegex.test(phone_number)) {
-      setError("Telephone number must be 10 digits.");
-      return false;
-    }
-
-    const birthDate = new Date(birthday);
-    const today = new Date();
-    if (birthDate > today) {
-      setError("Birthday cannot be in the future.");
-      return false;
-    }
-
-    if (course_count < 0) {
-      setError("Course count cannot be negative.");
-      return false;
-    }
-
-    if (isNaN(course_count)) {
-      setError("Course count must be a valid number.");
-      return false;
-    }
-
-    if (!appointment_date) {
-      setError("You need to provide an appointment date.");
-      return false; // Ensure appointment date is provided
-    }
-
-    return true;
-  };
-
-  const checkAppointmentDateAvailability = async (appointment_date: string) => {
-    try {
-      const response = await fetch(`https://dinosaur.prakasitj.com/patient/searchbyAppointmentDate/${appointment_date}`);
-      
-      if (!response.ok) {
-        const errorDetails = await response.text();
-        throw new Error(`Failed to check appointment date: ${errorDetails}`);
-      }
-
-      const result = await response.json();
-      return result.length > 0; 
-    } catch (error) {
-      console.error("Error in checkAppointmentDateAvailability:", error);
-      setError("Error checking appointment date availability. Please try again.");
-      return false; 
-    }
-  };
-
-  const submitToApi = async () => {
-    try {
-      if (formData.appointment_date) {
-        formData.appointment_date = new Date(formData.appointment_date).toISOString();
-      }
-
-      const response = await fetch("https://dinosaur.prakasitj.com/patient/addPatient", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Full error response:", errorData); 
-        setError(errorData.message || "Failed to add patient data.");
-        return;
-      }
-
-      navigate("/listViewPatient");
-    } catch (err) {
-      setError("Error submitting data. Please try again.");
-      console.error("Request error:", err); 
-    }
-  };
-
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError("");
 
-    if (!validateForm()) return;
-
-    // Only check availability if the appointment date is provided
-    const isAvailable = formData.appointment_date 
-      ? await checkAppointmentDateAvailability(new Date(formData.appointment_date).toISOString())
-      : false;
-
-    if (isAvailable) {
-      setError("The selected appointment date is already taken. Please choose a different date.");
-      return; 
+    if (!formData.appointment_date) {
+      setError("You need to provide an appointment date.");
+      return;
     }
 
-    submitToApi(); 
+    const result = await addPatient({
+      name_surname: formData.name_surname,
+      phone_number: formData.phone_number,
+      birthday: formData.birthday,
+      gender: formData.gender,
+      appointment_date: new Date(formData.appointment_date).toISOString(),
+      course_count: formData.course_count,
+      first_visit_date: formData.first_visit_date,
+    });
+
+    if (result.success) {
+      navigate("/listViewPatient");
+    } else {
+      setError(result.error || "Failed to add patient");
+    }
   };
 
   return (
@@ -219,13 +151,14 @@ function AddNewPatient() {
               />
             </div>
 
-            {error && <p className="text-red-500">{error}</p>}
+            {(error || hookError) && <p className="text-red-500">{error || hookError}</p>}
 
             <button
               type="submit"
-              className="w-36 py-2 bg-[#1FA1AF] text-white font-bold rounded-lg"
+              disabled={loading}
+              className="w-36 py-2 bg-[#1FA1AF] text-white font-bold rounded-lg disabled:opacity-50"
             >
-              Save
+              {loading ? "Saving..." : "Save"}
             </button>
           </form>
         </div>

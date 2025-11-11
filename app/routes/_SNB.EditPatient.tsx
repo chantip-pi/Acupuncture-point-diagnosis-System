@@ -1,65 +1,30 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "@remix-run/react";
+import { useGetPatientById } from "~/presentation/hooks/useGetPatientById";
+import { useUpdatePatient } from "~/presentation/hooks/useUpdatePatient";
+import { Patient } from "~/domain/entities/Patient";
 
-interface Patient {
-  patient_id: number;
-  name_surname: string;
-  phone_number: string;
-  birthday: string;
-  gender: string;
-  course_count: number;
-  appointment_date: string | null;
-  first_visit_date: string;
-}
+
 
 function EditPatient() {
   const navigate = useNavigate();
-  const [patientData, setPatientData] = useState<Patient | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const patientId = useMemo(() => {
+    const storedPatientID = sessionStorage.getItem("currentPatientID");
+    if (!storedPatientID) return null;
+    const id = storedPatientID.replace(/^"|"$/g, "");
+    return id === "Guest" ? null : parseInt(id, 10);
+  }, []);
+
+  const { patient: patientData, loading, error } = useGetPatientById(patientId);
+  const { updatePatient, loading: updating, error: updateError } = useUpdatePatient();
   const [formData, setFormData] = useState<Partial<Patient>>({});
+  const [localError, setLocalError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchPatientData = async () => {
-      const storedPatientID = sessionStorage.getItem("currentPatientID");
-      const currentPatientIDValue = storedPatientID
-        ? storedPatientID.replace(/^"|"$/g, "")
-        : null;
-
-      if (!currentPatientIDValue) {
-        setError("No patient ID found in session.");
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const response = await fetch(
-          `https://dinosaur.prakasitj.com/patient/searchbyID/${currentPatientIDValue}`
-        );
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        if (data.length > 0) {
-          setPatientData(data[0]);
-          setFormData(data[0]);
-        } else {
-          setError("No data found for this patient ID.");
-        }
-      } catch (err) {
-        if (err instanceof Error) {
-          setError(`Failed to load data: ${err.message}`);
-        } else {
-          setError("An unknown error occurred.");
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPatientData();
-  }, []);
+  if (patientData) {
+    setFormData(patientData);
+  }
+}, [patientData]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -70,70 +35,41 @@ function EditPatient() {
     if (name === "appointment_date") {
       const dateValue = value ? new Date(value).toISOString() : null;
       setFormData((prev) => ({ ...prev, [name]: dateValue }));
-      setError(null);
+      setLocalError(null);
     } else {
       setFormData((prev) => ({ ...prev, [name]: newValue }));
     }
   };
 
-  const checkAppointmentDateAvailability = async (appointment_date: string) => {
-    try {
-      const response = await fetch(`https://dinosaur.prakasitj.com/patient/searchbyAppointmentDate/${appointment_date}`);
-      
-      if (!response.ok) {
-        const errorDetails = await response.text(); 
-        throw new Error(`Failed to check appointment date: ${errorDetails}`);
-      }
-
-      const result = await response.json();
-      console.log("Response from searchbyAppointmentDate:", result); 
-
-      return result.length > 0; 
-    } catch (error) {
-      console.error("Error in checkAppointmentDateAvailability:", error);
-      setError("Error checking appointment date availability. Please try again.");
-      return false;
-    }
-  };
-
   const handleSave = async () => {
     if (!formData.appointment_date) {
-      setError("Please select an appointment date.");
+      setLocalError("Please select an appointment date.");
       return;
     }
 
-    const isNotAvailable = await checkAppointmentDateAvailability(
-      new Date(formData.appointment_date).toISOString()
-    );
+    setLocalError(null);
 
-    if (isNotAvailable) {
-      setError("The selected appointment date is already taken. Please choose a different date.");
-      return; 
-    }
+    const result = await updatePatient({
+      patient_id: formData.patient_id || 0,
+      name_surname: formData.name_surname || "",
+      phone_number: formData.phone_number || "",
+      birthday: formData.birthday || "",
+      gender: formData.gender || "",
+      appointment_date: formData.appointment_date || null,
+      course_count: formData.course_count || 0,
+      first_visit_date: formData.first_visit_date || "",
+    });
 
-    try {
-      const response = await fetch(
-        `https://dinosaur.prakasitj.com/patient/editPatient/`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to save patient data");
-      }
-      navigate(`/PatientDetail/`);
-    } catch (error) {
-      console.error(error);
-      setError("Failed to save data.");
+    if (result.success) {
+      navigate("/PatientDetail");
+    } else {
+      setLocalError(result.error || "Failed to save data.");
     }
   };
 
-  if (loading) return <p>Loading...</p>; // Show loading state
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>{error}</p>;
+  if (!patientData) return <p>No patient data found</p>;
 
   return (
     <div className="flex flex-row h-[100svh] bg-[#DCE8E9] ml-20">
@@ -246,7 +182,7 @@ function EditPatient() {
               onChange={handleChange}
               className="w-[70svh] py-2 px-3 bg-gray-300 text-sm rounded-full"
             />
-            {error && formData.appointment_date && <p className="text-red-500">{error}</p>} 
+         {(localError || updateError) && <p className="text-red-500">{localError || updateError}</p>} 
           </div>
 
           <div>
@@ -267,6 +203,7 @@ function EditPatient() {
           <button
             onClick={handleSave}
             type="button"
+            disabled={updating}
             className="bg-[#2F919C] text-white font-semibold py-2 px-6
                 h-[50px] w-[14svh] rounded-lg shadow-[0px_4px_4px_rgba(0,0,0,0.25)]
                 hover:bg-[#236971] transition-all text-xl ml-[35svw]"

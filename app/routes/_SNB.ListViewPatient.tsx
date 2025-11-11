@@ -1,48 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useMemo } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "@remix-run/react";
 import { format } from "date-fns";
-
-interface Patient {
-  patient_id: number;
-  name_surname: string;
-  phone_number: string;
-  birthday: string;
-  gender: string;
-  appointment_date: Date;
-  course_count: number;
-}
+import { useGetPatientList } from "~/presentation/hooks/useGetPatientList";
+import { Patient } from "~/domain/entities/Patient";
 
 const ListViewPatient: React.FC = () => {
   const navigate = useNavigate();
-  const [patientList, setPatientList] = useState<Patient[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const { patients: patientList, loading, error } = useGetPatientList();
   const [searchTerm, setSearchTerm] = useState<string>("");
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch("https://dinosaur.prakasitj.com/patient/getPatientList");
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch patient data");
-        }
-
-        const data: Patient[] = await response.json();
-        data.sort((a, b) => a.patient_id - b.patient_id);
-        setPatientList(data);
-      } catch (err) {
-        setError("Failed to load data");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -61,11 +28,13 @@ const ListViewPatient: React.FC = () => {
     navigate("/AddNewPatient");
   };
 
-  const filteredPatients = patientList.filter((patient) =>
-    patient.name_surname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    patient.phone_number.includes(searchTerm) ||
-    patient.patient_id.toString().includes(searchTerm)
-  );
+  const filteredPatients = useMemo(() => {
+    return patientList.filter((patient) =>
+      patient.name_surname.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      patient.phone_number.includes(searchTerm) ||
+      patient.patient_id.toString().includes(searchTerm)
+    );
+  }, [patientList, searchTerm]);
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
@@ -186,7 +155,7 @@ const ListViewPatient: React.FC = () => {
             </thead>
             
             <tbody>
-              {filteredPatients.map((patient) => (
+              {filteredPatients.map((patient: Patient) => (
                 <tr
                   key={patient.patient_id}
                   style={{ borderBottom: "1px solid white", cursor: "pointer" }}
@@ -200,7 +169,9 @@ const ListViewPatient: React.FC = () => {
                   </td>
                   <td style={thTdStyle}>{patient.gender}</td>
                   <td style={thTdStyle}>
-                    {format(new Date(patient.appointment_date), 'dd/MM/yyyy kk:mm')}
+                    {patient.appointment_date
+                      ? format(new Date(patient.appointment_date), 'dd/MM/yyyy kk:mm')
+                      : 'N/A'}
                   </td>
                   <td style={thTdStyle}>{patient.course_count}</td>
                   <td style={thTdStyle}>

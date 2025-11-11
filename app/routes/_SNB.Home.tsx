@@ -1,62 +1,14 @@
 import { CiUser } from "react-icons/ci";
-import { useLoaderData, useNavigate } from "@remix-run/react";
-import React, { useEffect, useState } from "react";
+import { useNavigate } from "@remix-run/react";
+import React, { useMemo } from "react";
 import { format } from "date-fns";
-
-interface Patient {
-  patient_id: number;
-  name_surname: string;
-  phone_number: string;
-  birthday: string;
-  gender: string;
-  appointment_date: string;
-  course_count: number;
-}
+import { useGetPatientsByAppointmentDate } from "~/presentation/hooks/useGetPatientsByAppointmentDate";
+import { Patient } from "~/domain/entities/Patient";
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
-  const [patientList, setPatientList] = useState<Patient[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [formattedDate, setFormattedDate] = useState<Patient[]>([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(
-          "https://dinosaur.prakasitj.com/patient/getPatientList"
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch patient data");
-        }
-
-        const data: Patient[] = await response.json();
-        data.sort((a, b) => a.patient_id - b.patient_id);
-
-        const today = new Date();
-        const formattedToday = format(today, "yyyy-MM-dd");
-
-        // Filter patients with appointment date = today
-        const filteredData = data.filter(
-          (patient) =>
-            format(new Date(patient.appointment_date), "yyyy-MM-dd") ===
-            formattedToday
-        );
-
-        setPatientList(filteredData);
-      } catch (err) {
-        setError("Failed to load data");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []); // Empty dependency array to fetch data on mount
-
-  const filteredPatients = patientList.filter((patient) => patient);
+  const today = useMemo(() => new Date(), []);
+  const { patients: patientList, loading, error } = useGetPatientsByAppointmentDate(today);
 
   const handlePatientDetail = (patientId: number) => {
     sessionStorage.setItem("currentPatientID", JSON.stringify(patientId));
@@ -64,12 +16,11 @@ const Home: React.FC = () => {
   };
 
   const handleSeeAllClick = () => {
-    navigate("/ListViewPatient"); // เปลี่ยนเส้นทางไปยังหน้า ListViewPatient
+    navigate("/ListViewPatient");
   };
 
-  console.table(patientList);
-
-  const [searchTerm, setSearchTerm] = React.useState<string>("");
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>{error}</p>;
 
   return (
     <div className="flex flex-row w-[78svw]">
@@ -115,7 +66,7 @@ const Home: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredPatients.map((patient: Patient, index: number) => (
+                {patientList.map((patient: Patient, index: number) => (
                   <tr
                     key={index}
                     style={{
@@ -131,14 +82,12 @@ const Home: React.FC = () => {
                     </td>
                     <td style={thTdStyle} onClick={() => handlePatientDetail(patient.patient_id)}>{patient.gender}</td>
                     <td style={thTdStyle} onClick={() => handlePatientDetail(patient.patient_id)}>
-                      <td style={thTdStyle} onClick={() => handlePatientDetail(patient.patient_id)}>
-                        {patient.appointment_date
-                          ? format(
-                              new Date(patient.appointment_date),
-                              "dd-MM-yyyy kk:mm"
-                            )
-                          : "N/A"}
-                      </td>
+                      {patient.appointment_date
+                        ? format(
+                            new Date(patient.appointment_date),
+                            "dd-MM-yyyy kk:mm"
+                          )
+                        : "N/A"}
                     </td>
                     <td style={thTdStyle} onClick={() => handlePatientDetail(patient.patient_id)}>{patient.course_count}</td>
                   </tr>

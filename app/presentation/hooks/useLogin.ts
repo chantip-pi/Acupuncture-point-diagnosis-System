@@ -2,12 +2,13 @@ import { useState } from "react";
 import { loginUseCase } from "~/infrastructure/di/container";
 import { LoginDTO } from "~/application/dtos/StaffDTO";
 import { Staff } from "~/domain/entities/Staff";
+import { setUserSession, UserSession } from "~/presentation/session/userSession";
 
 export function useLogin() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const login = async (dto: LoginDTO): Promise<Staff | null> => {
+  const login = async (dto: LoginDTO): Promise<UserSession | null> => {
     setLoading(true);
     setError(null);
 
@@ -17,7 +18,10 @@ export function useLogin() {
         setError("Invalid username or password.");
         return null;
       }
-      return staff;
+
+      setUserSession(staff);
+      const { password, ...sessionData } = staff;
+      return sessionData;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Failed to login. Please try again.";
       setError(errorMessage);

@@ -1,25 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import SideNavBar from "app/routes/_SNB";
 import { useNavigate } from "@remix-run/react";
-import { format } from 'date-fns';
-
-interface Staff {
-  staff_id: number;
-  username: string;
-  staff_name: string;
-  staff_phone_number: string;
-  birthday: string;
-  gender: string;
-  role: string;
-  email: string;
-}
+import { format } from "date-fns";
+import { useGetStaffList } from "~/presentation/hooks/useGetStaffList";
+import { Staff } from "~/domain/entities/Staff";
+import { getUserSession } from "~/presentation/session/userSession";
+import { setSelectedStaffUsername } from "~/presentation/session/staffSelectionSession";
 
 const StaffListView: React.FC = () => {
-  const [staffList, setStaffList] = useState<Staff[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const { staffList, loading, error } = useGetStaffList();
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [isManager, setIsManager] = useState<boolean>(false);
   const [currentUser, setCurrentUser] = useState<string>("Guest");
@@ -27,84 +18,62 @@ const StaffListView: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch("https://dinosaur.prakasitj.com/staff/getStaffList");
+    const session = getUserSession();
+    if (!session) {
+      setCurrentUser("Guest");
+      setIsManager(false);
+      return;
+    }
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch staff data");
-        }
-
-        const data = await response.json();
-        setStaffList(data);
-      } catch (err) {
-        setError("Failed to load data");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []); // Empty dependency array to fetch data on mount
-
-  useEffect(() => {
-    const fetchStaffData = async () => {
-      const currentUser = sessionStorage.getItem("currentUser");
-      const currentStaffValue = currentUser ? currentUser.replace(/^"|"$/g, '').toLowerCase() : "guest";
-      setCurrentUser(currentStaffValue);
-
-        const response = await fetch(
-          `https://dinosaur.prakasitj.com/staff/searchbyUsername/${currentUser}`
-        );
-        const data = await response.json();
-
-        if (Array.isArray(data) && data.length > 0 ) {
-          console.log(data[0].role);
-        } else {
-          console.error("No staff found.");
-        }
-        
-        if (data[0].role.replace(/^"|"$/g, '').toLowerCase() === "manager") {
-          setIsManager(true);
-        }
-    };
-    fetchStaffData();
-  }, [currentUser]);
+    setCurrentUser(session.username);
+    setIsManager(session.role?.toLowerCase() === "manager");
+  }, []);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
   };
 
-  const filteredStaff = staffList.filter(
-    (staff) =>
-      staff.staff_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      staff.staff_phone_number.includes(searchTerm) ||
-      staff.staff_id.toString().includes(searchTerm) ||
-      staff.username.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const getStaffName = (staff: Staff): string => {
+    return staff.name_surname || (staff as unknown as { staff_name?: string }).staff_name || "";
+  };
+
+  const filteredStaff = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return staffList;
+
+    return staffList.filter((staff) => {
+      const name = getStaffName(staff).toLowerCase();
+      const phoneMatch = staff.staff_phone_number.includes(searchTerm);
+      const idMatch = staff.staff_id.toString().includes(searchTerm);
+      const usernameMatch = staff.username.toLowerCase().includes(term);
+      return name.includes(term) || phoneMatch || idMatch || usernameMatch;
+    });
+  }, [staffList, searchTerm]);
+
+  const ensureManager = (action: () => void) => {
+    if (!isManager) {
+      alert("You don't have access to this action.");
+      return;
+    }
+
+    action();
+  };
 
   const handleEditStaff = (username: string) => {
-    if (isManager) {
-      sessionStorage.setItem("currentStaff", JSON.stringify(username));
+    ensureManager(() => {
+      setSelectedStaffUsername(username);
       navigate("/editStaff");
-    }
-    else {
-      alert("You don't have access to edit.")
-    }
+    });
   };
 
   const handleAddNewStaff = () => {
-    if (isManager) {
+    ensureManager(() => {
       navigate("/staffSignUp");
-    }
-    else {
-      alert("You don't have access to add.")
-    }
+    });
   };
 
-  const handleClickList = (currentStaff: string) => {
-    sessionStorage.setItem("currentStaff", JSON.stringify(currentStaff));
+  const handleClickList = (username: string) => {
+    setSelectedStaffUsername(username);
     navigate("/staffPage");
   };
 
@@ -152,11 +121,11 @@ const StaffListView: React.FC = () => {
               </thead>
               <tbody>
                 {filteredStaff.map((staff) => (
-                  <tr key={staff.staff_id} style={{ borderBottom: "1px solid white", cursor:"pointer"}}>
+                  <tr key={staff.staff_id} style={{ borderBottom: "1px solid white", cursor: "pointer" }}>
                     <td style={thTdStyle} onClick={() => handleClickList(staff.username)}>{staff.username}</td>
-                    <td style={thTdStyle} onClick={() => handleClickList(staff.username)}>{staff.staff_name}</td>
+                    <td style={thTdStyle} onClick={() => handleClickList(staff.username)}>{getStaffName(staff)}</td>
                     <td style={thTdStyle} onClick={() => handleClickList(staff.username)}>{staff.staff_phone_number}</td>
-                    <td style={thTdStyle} onClick={() => handleClickList(staff.username)}>{format(new Date(staff.birthday), 'dd/MM/yyyy')}</td>
+                    <td style={thTdStyle} onClick={() => handleClickList(staff.username)}>{format(new Date(staff.birthday), "dd/MM/yyyy")}</td>
                     <td style={thTdStyle} onClick={() => handleClickList(staff.username)}>{staff.gender}</td>
                     <td style={thTdStyle} onClick={() => handleClickList(staff.username)}>{staff.role}</td>
                     <td style={thTdStyle} onClick={() => handleClickList(staff.username)}>{staff.email}</td>

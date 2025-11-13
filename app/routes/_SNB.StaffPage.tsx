@@ -1,60 +1,35 @@
-import { useNavigate } from "@remix-run/react";
-import React, { useEffect, useState } from "react";
-
-interface Staff {
-  staff_id: number;
-  username: string;
-  staff_name: string;
-  staff_phone_number: string;
-  birthday: string;
-  gender: string;
-  role: string;
-  email: string;
-}
+import React, { useEffect, useMemo, useState } from "react";
+import { useGetStaffByUsername } from "~/presentation/hooks/useGetStaffByUsername";
+import { getUserSession } from "~/presentation/session/userSession";
+import { getSelectedStaffUsername } from "~/presentation/session/staffSelectionSession";
 
 function StaffPage() {
-  const navigate = useNavigate();
-  const [staffData, setStaffData] = useState<Staff | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [currentUser, setCurrentUser] = useState<string>("Guest");
-  const [currentStaff, setCurrentStaff] = useState<string>("Guest");
+  const [username, setUsername] = useState<string | null>(null);
+  const [sessionError, setSessionError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const storedStaff = sessionStorage.getItem("currentStaff");
-      const currentStaffValue = storedStaff ? storedStaff.replace(/^"|"$/g, '').toLowerCase() : "guest";
-      setCurrentStaff(currentStaffValue);
+    const selectedUsername = getSelectedStaffUsername();
+    if (selectedUsername) {
+      setUsername(selectedUsername);
+      return;
+    }
 
-      if (currentStaffValue === "Guest") {
-        setError("No username found in session.");
-        setLoading(false);
-        return;
-      }
+    const session = getUserSession();
+    if (!session) {
+      setSessionError("No user information found. Please log in again.");
+      return;
+    }
 
-      try {
-        const response = await fetch(`https://dinosaur.prakasitj.com/staff/searchbyUsername/${currentStaffValue}`);
-        if (!response.ok) {
-          throw new Error("Failed to fetch staff data");
-        }
-
-        const data = await response.json();
-        console.log(data);
-        if (data.length > 0) {
-          setStaffData(data[0]);
-        } else {
-          setError("No data found for this username.");
-        }
-      } catch (err) {
-        setError("Failed to load data");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
+    setUsername(session.username);
   }, []);
+
+  const { staff, loading, error } = useGetStaffByUsername(username);
+  const errorMessage = useMemo(() => sessionError ?? error, [sessionError, error]);
+
+  const age = useMemo(() => {
+    if (!staff) return "";
+    return calculateAge(staff.birthday);
+  }, [staff]);
 
   return (
     <div className="flex flex-row justify-center items-start w-[60svw] pt-10 pb-7">
@@ -68,20 +43,22 @@ function StaffPage() {
         </div>
 
         <div className="flex flex-col w-[30svw] h-[60svh] bg-[#DCE8E9] rounded-3xl gap-3 mb-5 mt-8 ml-5 pt-3">
-          {loading ? (
+          {loading && !errorMessage ? (
             <p>Loading...</p>
-          ) : error ? (
-            <p>{error}</p>
-          ) : (
+          ) : errorMessage ? (
+            <p>{errorMessage}</p>
+          ) : staff ? (
             <>
-              <OutputBox title="Username:" output={staffData?.username || ""} />
-              <OutputBox title="Name Surname:" output={staffData?.staff_name || ""} />
-              <OutputBox title="Phone Number:" output={staffData?.staff_phone_number || ""} />
-              <OutputBox title="Age:" output={staffData ? calculateAge(staffData.birthday) : ""} />
-              <OutputBox title="Gender:" output={staffData?.gender || ""} />
-              <OutputBox title="Role:" output={staffData?.role || ""} />
-              <OutputBox title="Email:" output={staffData?.email || ""} />
+              <OutputBox title="Username:" output={staff.username} />
+              <OutputBox title="Name Surname:" output={staff.name_surname} />
+              <OutputBox title="Phone Number:" output={staff.staff_phone_number} />
+              <OutputBox title="Age:" output={age} />
+              <OutputBox title="Gender:" output={staff.gender} />
+              <OutputBox title="Role:" output={staff.role} />
+              <OutputBox title="Email:" output={staff.email} />
             </>
+          ) : (
+            <p>No staff data available.</p>
           )}
         </div>
       </div>
@@ -108,9 +85,20 @@ function OutputBox({ title, output }: OutputBoxProps) {
 // Utility function to calculate age from birthday
 function calculateAge(birthday: string): string {
   const birthDate = new Date(birthday);
-  const ageDifMs = Date.now() - birthDate.getTime();
-  const ageDate = new Date(ageDifMs);
-  return String(Math.abs(ageDate.getUTCFullYear() - 1970));
+  if (Number.isNaN(birthDate.getTime())) {
+    return "";
+  }
+
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDifference = today.getMonth() - birthDate.getMonth();
+  const dayDifference = today.getDate() - birthDate.getDate();
+
+  if (monthDifference < 0 || (monthDifference === 0 && dayDifference < 0)) {
+    age--;
+  }
+
+  return String(age);
 }
 
 export default StaffPage;

@@ -5,29 +5,28 @@ import { useLogin } from "~/presentation/hooks/useLogin";
 function LogIn() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const { login, loading, error: hookError } = useLogin();
-  const [error, setError] = useState("");
+  const { login, loading, error: authError } = useLogin();
+  const [formError, setFormError] = useState("");
 
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
+
     if (!username || !password) {
-      setError("Please fill in all fields.");
+      setFormError("Please fill in all fields.");
       return;
     }
-  
-    setError("");
-    const staff = await login({ username, password });
-    
-    if (staff) {
-      sessionStorage.setItem("currentUser", username);
+
+    setFormError("");
+    const userSession = await login({ username, password });
+
+    if (userSession) {
       navigate("/home");
     } else {
-      setError(hookError || "Invalid username or password.");
+      setFormError(authError || "Invalid username or password.");
     }
-  };  
+  };
 
   return (
     <div className="flex justify-center items-center w-[90vw] h-[90vh] bg-gray-100 shadow-lg rounded-lg absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
@@ -65,7 +64,9 @@ function LogIn() {
                 required
               />
             </div>
-            {error && <p className="text-red-500">{error}</p>}
+            {(formError.trim() || authError) && (
+              <p className="text-red-500">{formError.trim() || authError}</p>
+            )}
             <button
               onClick={handleSubmit}
               disabled={loading}

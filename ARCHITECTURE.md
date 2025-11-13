@@ -130,3 +130,13 @@ Infrastructure ←────┘
 - Application uses Infrastructure through Domain interfaces
 
 This ensures Domain and Application layers are independent of external frameworks and libraries.
+
+### How to Use MockDatasource:
+Mock datasource (default): Works out of the box. The app uses the mock datasource by default.
+Switch to real API: Set environment variable USE_MOCK_DATASOURCE=false or VITE_USE_MOCK_DATASOURCE=false
+
+### Adding a Real Database in the Future:
+1. Create a DatabaseDataSource class (similar to MockDataSource)
+2. Create DatabasePatientRepository and DatabaseStaffRepository
+3. Add "database" to the DatasourceType in datasource.config.ts
+4. Update the DI container to handle the "database" case

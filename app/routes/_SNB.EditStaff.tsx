@@ -1,5 +1,6 @@
 import { useNavigate } from "@remix-run/react";
 import React, { useEffect, useState, FormEvent } from "react";
+import { getSelectedStaffUsername } from "~/presentation/session/staffSelectionSession";
 
 interface Staff {
   staff_id: number;
@@ -33,11 +34,11 @@ function EditStaff() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const storedStaff = sessionStorage.getItem("currentStaff");
-      const currentStaffValue = storedStaff ? storedStaff.toLowerCase().replace(/^"|"$/g, '') : "Guest";
+      const storedStaff = getSelectedStaffUsername();
+      const currentStaffValue = storedStaff ? storedStaff.toLowerCase() : "guest";
       setCurrentStaff(currentStaffValue);
   
-      if (currentStaffValue === "Guest") {
+      if (currentStaffValue === "guest") {
         setError("No username found in session.");
         setLoading(false);
         return;

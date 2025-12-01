@@ -46,7 +46,7 @@ const TreatmentSelect: React.FC = () => {
         
         // Check if patientData is an array and has at least one element
         if (Array.isArray(patientData) && patientData.length > 0) {
-          setCurrentPatientName(patientData[0].name_surname); // Access the first object in the array
+          setCurrentPatientName(patientData[0].nameSurname); // Access the first object in the array
         } else {
           setCurrentPatientName("Guest");
         }
@@ -70,7 +70,7 @@ const TreatmentSelect: React.FC = () => {
       navigate("/totalCost");
     }
     else {
-      navigate('/treatmentSelect');
+      navigate('/select-treatment');
     }
   };
 

@@ -6,7 +6,7 @@ import { format } from "date-fns";
 import { useGetPatientList } from "~/presentation/hooks/useGetPatientList";
 import { Patient } from "~/domain/entities/Patient";
 
-const ListViewPatient: React.FC = () => {
+const PatientList: React.FC = () => {
   const navigate = useNavigate();
   const { patients: patientList, loading, error } = useGetPatientList();
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -17,22 +17,22 @@ const ListViewPatient: React.FC = () => {
 
   const handlePatientDetail = (patientId: number) => {
     sessionStorage.setItem("currentPatientID", JSON.stringify(patientId));
-    navigate("/PatientDetail");
+    navigate("/patientDetail");
   };
 
   const handleSelectTreatment = () => {
     navigate("/treatmentSelect");
   };
 
-  const handleAddNewPatient = () => {
-    navigate("/AddNewPatient");
+  const handleAddPatient = () => {
+    navigate("/addPatient");
   };
 
   const filteredPatients = useMemo(() => {
     return patientList.filter((patient) =>
-      patient.name_surname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      patient.phone_number.includes(searchTerm) ||
-      patient.patient_id.toString().includes(searchTerm)
+      patient.nameSurname.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      patient.phoneNumber.includes(searchTerm) ||
+      patient.patientId.toString().includes(searchTerm)
     );
   }, [patientList, searchTerm]);
 
@@ -51,7 +51,7 @@ const ListViewPatient: React.FC = () => {
       }}
     >
       <div
-        className="patient-list-view-container"
+        className="patientList-view-container"
         style={{
           width: "1120px",
           height: "850px",
@@ -80,7 +80,7 @@ const ListViewPatient: React.FC = () => {
               alignItems: "center",
               cursor: "pointer",
             }}
-            onClick={handleAddNewPatient}
+            onClick={handleAddPatient}
           >
             <span
               style={{
@@ -131,7 +131,7 @@ const ListViewPatient: React.FC = () => {
         </div>
 
         <div
-          className="patient-list"
+          className="patientList"
           style={{
             backgroundColor: "#DCE8E9",
             borderRadius: "10px",
@@ -157,23 +157,23 @@ const ListViewPatient: React.FC = () => {
             <tbody>
               {filteredPatients.map((patient: Patient) => (
                 <tr
-                  key={patient.patient_id}
+                  key={patient.patientId}
                   style={{ borderBottom: "1px solid white", cursor: "pointer" }}
-                  onClick={() => handlePatientDetail(patient.patient_id)}
+                  onClick={() => handlePatientDetail(patient.patientId)}
                 >
-                  <td style={thTdStyle}>{patient.patient_id}</td>
-                  <td style={thTdStyle}>{patient.name_surname}</td>
-                  <td style={thTdStyle}>{patient.phone_number}</td>
+                  <td style={thTdStyle}>{patient.patientId}</td>
+                  <td style={thTdStyle}>{patient.nameSurname}</td>
+                  <td style={thTdStyle}>{patient.phoneNumber}</td>
                   <td style={thTdStyle}>
                     {format(new Date(patient.birthday), 'dd/MM/yyyy')}
                   </td>
                   <td style={thTdStyle}>{patient.gender}</td>
                   <td style={thTdStyle}>
-                    {patient.appointment_date
-                      ? format(new Date(patient.appointment_date), 'dd/MM/yyyy kk:mm')
+                    {patient.appointmentDate
+                      ? format(new Date(patient.appointmentDate), 'dd/MM/yyyy kk:mm')
                       : 'N/A'}
                   </td>
-                  <td style={thTdStyle}>{patient.course_count}</td>
+                  <td style={thTdStyle}>{patient.courseCount}</td>
                   <td style={thTdStyle}>
                     <button
                       style={{
@@ -211,4 +211,4 @@ const thTdStyle: React.CSSProperties = {
   textAlign: "left",
 };
 
-export default ListViewPatient;
+export default PatientList;

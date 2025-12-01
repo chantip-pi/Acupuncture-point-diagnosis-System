@@ -41,7 +41,7 @@ export default function EditEquipment({
             `https://dinosaur.prakasitj.com/staff/searchbyUsername/${currentStaffValue}`
           );
           const data = await response.json();
-          setCurrentUserId(data[0]?.staff_id || data.staff_id);
+          setCurrentUserId(data[0]?.staffId || data.staffId);
         } catch (error) {
           console.error("Error fetching current user:", error);
           setError("Failed to retrieve user ID. Check console for details.");
@@ -114,7 +114,7 @@ export default function EditEquipment({
           record_date: new Date().toISOString(),
           income_and_expenses: "expenses",
           cost: totalCost,
-          staff_id: currentUserId,
+          staffId: currentUserId,
         };
   
         try {
@@ -162,7 +162,7 @@ export default function EditEquipment({
             stock_in_date: new Date().toISOString(),
             equipment_id: equipment.equipment_id,
             amount: amountToUpdate,
-            staff_id: currentUserId,
+            staffId: currentUserId,
           });
         }
       }
@@ -175,7 +175,7 @@ export default function EditEquipment({
   };
   
   
-  const addStockInRecord = async (record: { stock_in_date: string; equipment_id: number; amount: number; staff_id: number; }) => {
+  const addStockInRecord = async (record: { stock_in_date: string; equipment_id: number; amount: number; staffId: number; }) => {
     try {
       const response = await fetch(
         "https://dinosaur.prakasitj.com/stockinrecord/addRecord",

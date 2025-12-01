@@ -7,7 +7,7 @@ interface EquipmentRequisition {
   requisition_date: string;
   equipment_id: number;
   use_amount: number;
-  staff_id: number;
+  staffId: number;
 }
 
 interface EquipmentStock {
@@ -15,7 +15,7 @@ interface EquipmentStock {
   stock_in_date: string;
   equipment_id: number;
   amount: number;
-  staff_id: number;
+  staffId: number;
 }
 
 function EquipmentHistory() {
@@ -135,7 +135,7 @@ function EquipmentHistory() {
           className="pl-[4rem] py-2"
           style={{ borderBottom: "1px solid white" }}
         >
-          {record.staff_id}
+          {record.staffId}
         </td>
       </tr>
     ));

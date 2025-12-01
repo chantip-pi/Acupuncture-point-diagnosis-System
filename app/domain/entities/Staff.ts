@@ -1,9 +1,9 @@
 export interface Staff {
-  staff_id: number;
+  staffId: number;
   username: string;
   password: string;
-  name_surname: string;
-  staff_phone_number: string;
+  nameSurname: string;
+  phoneNumber: string;
   birthday: string;
   gender: string;
   email: string;
@@ -12,11 +12,11 @@ export interface Staff {
 
 export class StaffEntity {
   constructor(
-    public readonly staff_id: number,
+    public readonly staffId: number,
     public readonly username: string,
     public readonly password: string,
-    public readonly name_surname: string,
-    public readonly staff_phone_number: string,
+    public readonly nameSurname: string,
+    public readonly phoneNumber: string,
     public readonly birthday: string,
     public readonly gender: string,
     public readonly email: string,
@@ -25,11 +25,11 @@ export class StaffEntity {
 
   static fromData(data: Staff): StaffEntity {
     return new StaffEntity(
-      data.staff_id,
+      data.staffId,
       data.username,
       data.password,
-      data.name_surname,
-      data.staff_phone_number,
+      data.nameSurname,
+      data.phoneNumber,
       data.birthday,
       data.gender,
       data.email,
@@ -39,11 +39,11 @@ export class StaffEntity {
 
   toData(): Staff {
     return {
-      staff_id: this.staff_id,
+      staffId: this.staffId,
       username: this.username,
       password: this.password,
-      name_surname: this.name_surname,
-      staff_phone_number: this.staff_phone_number,
+      nameSurname: this.nameSurname,
+      phoneNumber: this.phoneNumber,
       birthday: this.birthday,
       gender: this.gender,
       email: this.email,

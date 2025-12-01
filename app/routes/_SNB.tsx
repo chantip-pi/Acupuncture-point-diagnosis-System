@@ -51,7 +51,7 @@ function SideNavBar() {
             <li className="flex flex-col items-center">
               <div className="bg-[#2F919C] text-white w-36 h-24 rounded-3xl flex flex-col items-center justify-center transition">
                 <IoPersonAddSharp size={20} className="mb-2" />
-                <button onClick={() => navigate("/addNewPatient")} className="text-lg block">
+                <button onClick={() => navigate("/addPatient")} className="text-lg block">
                   Add New Patient
                 </button>
               </div>

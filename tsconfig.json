@@ -6,7 +6,7 @@
     "**/.server/**/*.tsx",
     "**/.client/**/*.ts",
     "**/.client/**/*.tsx"
-, "app/routes/_SNB.jsx", "app/routes/_index.tsx", "app/routes/_SNB.EditStaff.tsx", "app/routes/StaffSigapp/routes/patient/AddNewPatient.tsxPatient.tsx", "app/routes/LogIn.tsx", "app/routes/_SNB.index.jsx", "app/App.js"  ],
+, "app/routes/_SNB.jsx", "app/routes/_index.tsx", "app/routes/_SNB.EditStaff.tsx", "app/routes/StaffSigapp/routes/patient/AddPatient.tsxPatient.tsx", "app/routes/LogIn.tsx", "app/routes/_SNB.index.jsx", "app/App.js"  ],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "types": ["@remix-run/node", "vite/client"],

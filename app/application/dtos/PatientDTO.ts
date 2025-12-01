@@ -1,21 +1,21 @@
 export interface CreatePatientDTO {
-  name_surname: string;
-  phone_number: string;
+  nameSurname: string;
+  phoneNumber: string;
   birthday: string;
   gender: string;
-  appointment_date: string;
-  course_count: number;
-  first_visit_date: string;
+  appointmentDate: string;
+  courseCount: number;
+  firstVistDate: string;
 }
 
 export interface UpdatePatientDTO {
-  patient_id: number;
-  name_surname: string;
-  phone_number: string;
+  patientId: number;
+  nameSurname: string;
+  phoneNumber: string;
   birthday: string;
   gender: string;
-  appointment_date: string | null;
-  course_count: number;
-  first_visit_date: string;
+  appointmentDate: string | null;
+  courseCount: number;
+  firstVistDate: string;
 }
 

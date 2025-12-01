@@ -12,11 +12,11 @@ const Home: React.FC = () => {
 
   const handlePatientDetail = (patientId: number) => {
     sessionStorage.setItem("currentPatientID", JSON.stringify(patientId));
-    navigate("/PatientDetail");
+    navigate("/patientDetail");
   };
 
   const handleSeeAllClick = () => {
-    navigate("/ListViewPatient");
+    navigate("/patientList");
   };
 
   if (loading) return <p>Loading...</p>;
@@ -74,22 +74,22 @@ const Home: React.FC = () => {
                       cursor: "pointer",
                     }}
                   >
-                    <td style={thTdStyle} onClick={() => handlePatientDetail(patient.patient_id)}>{patient.patient_id}</td>
-                    <td style={thTdStyle} onClick={() => handlePatientDetail(patient.patient_id)}>{patient.name_surname}</td>
-                    <td style={thTdStyle} onClick={() => handlePatientDetail(patient.patient_id)}>{patient.phone_number}</td>
-                    <td style={thTdStyle} onClick={() => handlePatientDetail(patient.patient_id)}>
+                    <td style={thTdStyle} onClick={() => handlePatientDetail(patient.patientId)}>{patient.patientId}</td>
+                    <td style={thTdStyle} onClick={() => handlePatientDetail(patient.patientId)}>{patient.nameSurname}</td>
+                    <td style={thTdStyle} onClick={() => handlePatientDetail(patient.patientId)}>{patient.phoneNumber}</td>
+                    <td style={thTdStyle} onClick={() => handlePatientDetail(patient.patientId)}>
                       {format(patient.birthday, "dd-MM-yyyy")}
                     </td>
-                    <td style={thTdStyle} onClick={() => handlePatientDetail(patient.patient_id)}>{patient.gender}</td>
-                    <td style={thTdStyle} onClick={() => handlePatientDetail(patient.patient_id)}>
-                      {patient.appointment_date
+                    <td style={thTdStyle} onClick={() => handlePatientDetail(patient.patientId)}>{patient.gender}</td>
+                    <td style={thTdStyle} onClick={() => handlePatientDetail(patient.patientId)}>
+                      {patient.appointmentDate
                         ? format(
-                            new Date(patient.appointment_date),
+                            new Date(patient.appointmentDate),
                             "dd-MM-yyyy kk:mm"
                           )
                         : "N/A"}
                     </td>
-                    <td style={thTdStyle} onClick={() => handlePatientDetail(patient.patient_id)}>{patient.course_count}</td>
+                    <td style={thTdStyle} onClick={() => handlePatientDetail(patient.patientId)}>{patient.courseCount}</td>
                   </tr>
                 ))}
               </tbody>

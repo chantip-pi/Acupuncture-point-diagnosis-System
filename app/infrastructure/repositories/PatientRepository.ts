@@ -23,7 +23,7 @@ export class PatientRepository implements IPatientRepository {
     return Array.isArray(data) ? data : [];
   }
 
-  async create(patient: Omit<Patient, "patient_id">): Promise<Patient> {
+  async create(patient: Omit<Patient, "patientId">): Promise<Patient> {
     const data = await this.httpClient.post<Patient>(
       API_CONFIG.endpoints.patient.create,
       patient

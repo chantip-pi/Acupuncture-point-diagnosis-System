@@ -2,15 +2,15 @@ import React, { useState, ChangeEvent, FormEvent } from "react";
 import { useNavigate } from "@remix-run/react";
 import { useAddPatient } from "~/presentation/hooks/useAddPatient";
 
-function AddNewPatient() {
+function AddPatient() {
   const [formData, setFormData] = useState({
-    name_surname: "",
-    phone_number: "",
+    nameSurname: "",
+    phoneNumber: "",
     birthday: "",
     gender: "",
-    appointment_date: "",
-    course_count: 0,
-    first_visit_date: new Date().toISOString().slice(0, 10),
+    appointmentDate: "",
+    courseCount: 0,
+    firstVistDate: new Date().toISOString().slice(0, 10),
   });
   const { addPatient, loading, error: hookError } = useAddPatient();
   const [error, setError] = useState<string>("");
@@ -20,7 +20,7 @@ function AddNewPatient() {
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
-      [name]: name === "course_count" ? Number(value) : value,
+      [name]: name === "courseCount" ? Number(value) : value,
     }));
   };
 
@@ -28,23 +28,23 @@ function AddNewPatient() {
     e.preventDefault();
     setError("");
 
-    if (!formData.appointment_date) {
+    if (!formData.appointmentDate) {
       setError("You need to provide an appointment date.");
       return;
     }
 
     const result = await addPatient({
-      name_surname: formData.name_surname,
-      phone_number: formData.phone_number,
+      nameSurname: formData.nameSurname,
+      phoneNumber: formData.phoneNumber,
       birthday: formData.birthday,
       gender: formData.gender,
-      appointment_date: new Date(formData.appointment_date).toISOString(),
-      course_count: formData.course_count,
-      first_visit_date: formData.first_visit_date,
+      appointmentDate: new Date(formData.appointmentDate).toISOString(),
+      courseCount: formData.courseCount,
+      firstVistDate: formData.firstVistDate,
     });
 
     if (result.success) {
-      navigate("/listViewPatient");
+      navigate("/patientList");
     } else {
       setError(result.error || "Failed to add patient");
     }
@@ -60,14 +60,14 @@ function AddNewPatient() {
 
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
-              <label htmlFor="name_surname" className="block mb-1">
+              <label htmlFor="nameSurname" className="block mb-1">
                 Name Surname:
               </label>
               <input
                 type="text"
-                id="name_surname"
-                name="name_surname"
-                value={formData.name_surname}
+                id="nameSurname"
+                name="nameSurname"
+                value={formData.nameSurname}
                 onChange={handleChange}
                 className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
                 required
@@ -75,14 +75,14 @@ function AddNewPatient() {
             </div>
 
             <div className="mb-4">
-              <label htmlFor="phone_number" className="block mb-1">
+              <label htmlFor="phoneNumber" className="block mb-1">
                 Telephone:
               </label>
               <input
                 type="tel"
-                id="phone_number"
-                name="phone_number"
-                value={formData.phone_number}
+                id="phoneNumber"
+                name="phoneNumber"
+                value={formData.phoneNumber}
                 onChange={handleChange}
                 className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
                 required
@@ -123,28 +123,28 @@ function AddNewPatient() {
             </div>
 
             <div className="mb-4">
-              <label htmlFor="appointment_date" className="block mb-1">
+              <label htmlFor="appointmentDate" className="block mb-1">
                 Appointment Date & Time:
               </label>
               <input
                 type="datetime-local"
-                id="appointment_date"
-                name="appointment_date"
-                value={formData.appointment_date}
+                id="appointmentDate"
+                name="appointmentDate"
+                value={formData.appointmentDate}
                 onChange={handleChange}
                 className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
               />
             </div>
 
             <div className="mb-4">
-              <label htmlFor="course_count" className="block mb-1">
+              <label htmlFor="courseCount" className="block mb-1">
                 Course Count:
               </label>
               <input
                 type="number"
-                id="course_count"
-                name="course_count"
-                value={formData.course_count}
+                id="courseCount"
+                name="courseCount"
+                value={formData.courseCount}
                 onChange={handleChange}
                 className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
                 required
@@ -167,4 +167,4 @@ function AddNewPatient() {
   );
 }
 
-export default AddNewPatient;
+export default AddPatient;

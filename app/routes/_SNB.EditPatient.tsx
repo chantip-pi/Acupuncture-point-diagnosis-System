@@ -30,9 +30,9 @@ function EditPatient() {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    const newValue = name === "course_count" ? parseInt(value, 10) : value;
+    const newValue = name === "courseCount" ? parseInt(value, 10) : value;
 
-    if (name === "appointment_date") {
+    if (name === "appointmentDate") {
       const dateValue = value ? new Date(value).toISOString() : null;
       setFormData((prev) => ({ ...prev, [name]: dateValue }));
       setLocalError(null);
@@ -42,7 +42,7 @@ function EditPatient() {
   };
 
   const handleSave = async () => {
-    if (!formData.appointment_date) {
+    if (!formData.appointmentDate) {
       setLocalError("Please select an appointment date.");
       return;
     }
@@ -50,18 +50,18 @@ function EditPatient() {
     setLocalError(null);
 
     const result = await updatePatient({
-      patient_id: formData.patient_id || 0,
-      name_surname: formData.name_surname || "",
-      phone_number: formData.phone_number || "",
+      patientId: formData.patientId || 0,
+      nameSurname: formData.nameSurname || "",
+      phoneNumber: formData.phoneNumber || "",
       birthday: formData.birthday || "",
       gender: formData.gender || "",
-      appointment_date: formData.appointment_date || null,
-      course_count: formData.course_count || 0,
-      first_visit_date: formData.first_visit_date || "",
+      appointmentDate: formData.appointmentDate || null,
+      courseCount: formData.courseCount || 0,
+      firstVistDate: formData.firstVistDate || "",
     });
 
     if (result.success) {
-      navigate("/PatientDetail");
+      navigate("/patientDetail");
     } else {
       setLocalError(result.error || "Failed to save data.");
     }
@@ -85,14 +85,14 @@ function EditPatient() {
 
         <form className="flex flex-col gap-2.5" onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
           <div>
-            <label htmlFor="patient_id" className="block mb-1 text-lg">
+            <label htmlFor="patientId" className="block mb-1 text-lg">
               Patient ID:
             </label>
             <input
               type="text"
-              id="patient_id"
-              name="patient_id"
-              value={formData.patient_id || ""}
+              id="patientId"
+              name="patientId"
+              value={formData.patientId || ""}
               onChange={handleChange}
               className="w-[70svh] py-2 px-3 bg-gray-300 text-sm rounded-full"
               readOnly
@@ -100,14 +100,14 @@ function EditPatient() {
           </div>
 
           <div>
-            <label htmlFor="name_surname" className="block mb-1 text-lg">
+            <label htmlFor="nameSurname" className="block mb-1 text-lg">
               Name:
             </label>
             <input
               type="text"
-              id="name_surname"
-              name="name_surname"
-              value={formData.name_surname || ""}
+              id="nameSurname"
+              name="nameSurname"
+              value={formData.nameSurname || ""}
               onChange={handleChange}
               className="w-[70svh] py-2 px-3 bg-gray-300 text-sm rounded-full"
               required
@@ -115,14 +115,14 @@ function EditPatient() {
           </div>
 
           <div>
-            <label htmlFor="phone_number" className="block mb-1 text-lg">
+            <label htmlFor="phoneNumber" className="block mb-1 text-lg">
               Telephone:
             </label>
             <input
               type="tel"
-              id="phone_number"
-              name="phone_number"
-              value={formData.phone_number || ""}
+              id="phoneNumber"
+              name="phoneNumber"
+              value={formData.phoneNumber || ""}
               onChange={handleChange}
               className="w-[70svh] py-2 px-3 bg-gray-300 text-sm rounded-full"
               required
@@ -167,16 +167,16 @@ function EditPatient() {
           </div>
 
           <div>
-            <label htmlFor="appointment_date" className="block mb-1 text-lg">
+            <label htmlFor="appointmentDate" className="block mb-1 text-lg">
               Appointment Date & Time:
             </label>
             <input
               type="datetime-local"
-              id="appointment_date"
-              name="appointment_date"
+              id="appointmentDate"
+              name="appointmentDate"
               value={
-                formData.appointment_date
-                  ? new Date(formData.appointment_date).toISOString().slice(0, 16)
+                formData.appointmentDate
+                  ? new Date(formData.appointmentDate).toISOString().slice(0, 16)
                   : ""
               }
               onChange={handleChange}
@@ -186,14 +186,14 @@ function EditPatient() {
           </div>
 
           <div>
-            <label htmlFor="course_count" className="block mb-1 text-lg">
+            <label htmlFor="courseCount" className="block mb-1 text-lg">
               Course Count:
             </label>
             <input
               type="number"
-              id="course_count"
-              name="course_count"
-              value={formData.course_count || ""}
+              id="courseCount"
+              name="courseCount"
+              value={formData.courseCount || ""}
               onChange={handleChange}
               className="w-[70svh] py-2 px-3 bg-gray-300 text-sm rounded-full"
               required

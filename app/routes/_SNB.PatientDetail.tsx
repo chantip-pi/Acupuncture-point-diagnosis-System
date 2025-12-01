@@ -21,7 +21,7 @@ function PatientDetail() {
 
   const handleTreatmentSelect = (patientId: number) => {
     sessionStorage.setItem("currentPatientID", JSON.stringify(patientId));
-    navigate("/treatmentSelect");
+    navigate("/select-treatment");
   };
 
   if (loading) return <p>Loading...</p>;
@@ -36,7 +36,7 @@ function PatientDetail() {
           <div className="flex space-x-8">
             <div
               className="flex items-center cursor-pointer"
-              onClick={() => handleEdit(patientData.patient_id)}
+              onClick={() => handleEdit(patientData.patientId)}
             >
               <div className="h-5 w-5 bg-yellow-500 rounded-full mr-2"></div>
               <h1 className="text-lg hover:text-[#2F919C]">Edit Patient</h1>
@@ -46,9 +46,9 @@ function PatientDetail() {
               onClick={() => {
                 sessionStorage.setItem(
                   "currentPatientID",
-                  JSON.stringify(patientData.patient_id)
+                  JSON.stringify(patientData.patientId)
                 );
-                navigate("/MedicalRecord");
+                navigate("/medicalRecord");
               }}
             >
               <div className="h-5 w-5 bg-yellow-500 rounded-full mr-2"></div>
@@ -62,19 +62,19 @@ function PatientDetail() {
             <div className="space-y-4">
               <OutputBox
                 title="Full Name:"
-                output={patientData?.name_surname || "N/A"}
+                output={patientData?.nameSurname || "N/A"}
               />
               <OutputBox
                 title="Patient ID:"
-                output={String(patientData?.patient_id || "N/A")}
+                output={String(patientData?.patientId || "N/A")}
               />
               <OutputBox
                 title="Appointment Date:"
-                output={patientData.appointment_date ? formatDate(new Date(patientData.appointment_date).getTime()) : "N/A"}
+                output={patientData.appointmentDate ? formatDate(new Date(patientData.appointmentDate).getTime()) : "N/A"}
               />
               <OutputBox
                 title="First Visit Date:"
-                output={formatDate(new Date(patientData.first_visit_date).getTime())}
+                output={formatDate(new Date(patientData.firstVistDate).getTime())}
               />
             </div>
             <div className="space-y-4">
@@ -88,18 +88,18 @@ function PatientDetail() {
               />
               <OutputBox
                 title="Tel:"
-                output={patientData?.phone_number || "N/A"}
+                output={patientData?.phoneNumber || "N/A"}
               />
               <OutputBox
                 title="Course Count:"
-                output={String(patientData?.course_count || "0")}
+                output={String(patientData?.courseCount || "0")}
               />
             </div>
           </div>
         </div>
 
         <button className="bg-[rgb(47,145,156)] text-white px-5 py-2 rounded-md ml-auto mr-10 mt-6 hover:bg-[#1F7074] transition-colors duration-300"
-        onClick={() => handleTreatmentSelect(patientData.patient_id)}>
+        onClick={() => handleTreatmentSelect(patientData.patientId)}>
           Select Treatment
         </button>
       </div>

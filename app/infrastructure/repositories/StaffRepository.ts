@@ -27,10 +27,10 @@ export class StaffRepository implements IStaffRepository {
     const data = await this.httpClient.get<Staff[]>(
       API_CONFIG.endpoints.staff.login(username, password)
     );
-    return Array.isArray(data) && data.length > 0 && data[0].staff_id ? data[0] : null;
+    return Array.isArray(data) && data.length > 0 && data[0].staffId ? data[0] : null;
   }
 
-  async create(staff: Omit<Staff, "staff_id">): Promise<Staff> {
+  async create(staff: Omit<Staff, "staffId">): Promise<Staff> {
     const data = await this.httpClient.post<Staff>(
       API_CONFIG.endpoints.staff.create,
       staff

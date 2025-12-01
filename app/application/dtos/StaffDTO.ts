@@ -6,8 +6,8 @@ export interface LoginDTO {
 export interface CreateStaffDTO {
   username: string;
   password: string;
-  name_surname: string;
-  staff_phone_number: string;
+  nameSurname: string;
+  phoneNumber: string;
   birthday: string;
   gender: string;
   email: string;
@@ -15,11 +15,11 @@ export interface CreateStaffDTO {
 }
 
 export interface UpdateStaffDTO {
-  staff_id: number;
+  staffId: number;
   username: string;
   password: string;
-  name_surname: string;
-  staff_phone_number: string;
+  nameSurname: string;
+  phoneNumber: string;
   birthday: string;
   gender: string;
   email: string;

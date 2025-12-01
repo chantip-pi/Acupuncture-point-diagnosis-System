@@ -21,7 +21,7 @@ export class MockPatientRepository implements IPatientRepository {
     return this.dataSource.getPatientsByAppointmentDate(date);
   }
 
-  async create(patient: Omit<Patient, "patient_id">): Promise<Patient> {
+  async create(patient: Omit<Patient, "patientId">): Promise<Patient> {
     return this.dataSource.createPatient(patient);
   }
 

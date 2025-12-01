@@ -6,7 +6,7 @@ export class GetPatientListUseCase {
 
   async execute(): Promise<Patient[]> {
     const patients = await this.patientRepository.getAll();
-    return patients.sort((a, b) => a.patient_id - b.patient_id);
+    return patients.sort((a, b) => a.patientId - b.patientId);
   }
 }
 

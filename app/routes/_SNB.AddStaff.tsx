@@ -1,12 +1,13 @@
 import { useNavigate } from "@remix-run/react";
 import React, { useState, ChangeEvent, FormEvent, useEffect } from "react";
+import { useAddStaff } from "~/presentation/hooks/useAddStaff";
 
 function SignUp() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: "",
-    staff_name: "",
-    staff_phone_number: "",
+    nameSurname: "",
+    phoneNumber: "",
     birthday: "",
     gender: "",
     role: "",
@@ -14,11 +15,13 @@ function SignUp() {
     password: "",
     confirmPassword: "",
   });
-  
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
-  
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+
+  const { addStaff, loading, error: hookError } = useAddStaff();
+  const [error, setError] = useState<string>("");
+
+  const handleChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
@@ -26,30 +29,9 @@ function SignUp() {
     }));
   };
 
-  const checkUsernameAvailability = async () => {
-    try {
-      const response = await fetch(`https://dinosaur.prakasitj.com/staff/searchbyUsername/${formData.username}`);
-      if (!response.ok) {
-        throw new Error("Error checking username availability");
-      }
-
-      const data = await response.json();
-      if (data.length > 0) {
-        setError("Username already taken. Please choose another username.");
-        return false;
-      }
-
-      setError(null); 
-      return true;
-    } catch (error) {
-      setError("Error checking username availability. Please try again.");
-      console.error(error);
-      return false;
-    }
-  };
-
   const validateForm = () => {
-    const { staff_phone_number, birthday, email, password, confirmPassword } = formData;
+    const { phoneNumber, birthday, email, password, confirmPassword } =
+      formData;
     const telRegex = /^\d{10}$/;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -58,7 +40,7 @@ function SignUp() {
       return false;
     }
 
-    if (!telRegex.test(staff_phone_number)) {
+    if (!telRegex.test(phoneNumber)) {
       setError("Telephone number must be 10 digits.");
       return false;
     }
@@ -75,7 +57,6 @@ function SignUp() {
       return false;
     }
 
-    setError(null); 
     return true;
   };
 
@@ -84,38 +65,29 @@ function SignUp() {
 
     if (!validateForm()) return;
 
-    const isUsernameAvailable = await checkUsernameAvailability();
-    if (!isUsernameAvailable) return;
-
-    const formattedGender = formData.gender.charAt(0).toUpperCase() + formData.gender.slice(1);
+    const formattedGender =
+      formData.gender.charAt(0).toUpperCase() + formData.gender.slice(1);
 
     const dataToSubmit = {
       ...formData,
       gender: formattedGender,
     };
 
-    await submitToApi(dataToSubmit); 
-  };
+    const result = await addStaff({
+      nameSurname: formData.nameSurname,
+      phoneNumber: formData.phoneNumber,
+      birthday: formData.birthday,
+      gender: formData.gender,
+      role: formData.role,
+      email: formData.email,
+      password: formData.password,
+      username: formData.username,
+    });
 
-  const submitToApi = async (data: typeof formData) => {
-    try {
-      const response = await fetch("https://dinosaur.prakasitj.com/staff/addStaff", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Full error response:", errorData);
-        setError(errorData.message || "Failed to add staff data.");
-        return;
-      }
-
+    if (result.success) {
       navigate("/staffListView");
-    } catch (err) {
-      setError("Error submitting data. Please try again.");
-      console.error("Request error:", err);
+    } else {
+      setError(result.error || "Failed to add staff");
     }
   };
 
@@ -144,14 +116,14 @@ function SignUp() {
             </div>
 
             <div className="mb-4">
-              <label htmlFor="staff_name" className="block mb-1">
+              <label htmlFor="nameSurname" className="block mb-1">
                 Name:
               </label>
               <input
                 type="text"
-                id="staff_name"
-                name="staff_name"
-                value={formData.staff_name}
+                id="nameSurname"
+                name="nameSurname"
+                value={formData.nameSurname}
                 onChange={handleChange}
                 className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
                 required
@@ -159,14 +131,14 @@ function SignUp() {
             </div>
 
             <div className="mb-4">
-              <label htmlFor="staff_phone_number" className="block mb-1">
+              <label htmlFor="phoneNumber" className="block mb-1">
                 Telephone:
               </label>
               <input
                 type="tel"
-                id="staff_phone_number"
-                name="staff_phone_number"
-                value={formData.staff_phone_number}
+                id="phoneNumber"
+                name="phoneNumber"
+                value={formData.phoneNumber}
                 onChange={handleChange}
                 className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
                 required
@@ -221,6 +193,7 @@ function SignUp() {
                 <option value="">Select Role</option>
                 <option value="Staff">Staff</option>
                 <option value="Doctor">Doctor</option>
+                <option value="Nurse">Doctor</option>
               </select>
             </div>
 

@@ -20,14 +20,14 @@ interface Equipment {
 }
 
 interface Patient {
-  patient_id: number;
-  name_surname: string;
-  phone_number: string;
+  patientId: number;
+  nameSurname: string;
+  phoneNumber: string;
   birthday: string;
   gender: string;
-  course_count: number;
-  appointment_date: string | null;
-  first_visit_date: string;
+  courseCount: number;
+  appointmentDate: string | null;
+  firstVistDate: string;
 }
 
 const TotalCost: React.FC = () => {
@@ -75,7 +75,7 @@ const TotalCost: React.FC = () => {
         const data = await response.json();
 
         if (Array.isArray(data) && data.length > 0) {
-          setCurrentStaffId(data[0].staff_id);
+          setCurrentStaffId(data[0].staffId);
         } else {
           console.error("No staff found.");
         }
@@ -129,7 +129,7 @@ const TotalCost: React.FC = () => {
         const data = await response.json();
 
         if (Array.isArray(data) && data.length > 0) {
-          setCurrentPatientName(data[0].name_surname);
+          setCurrentPatientName(data[0].nameSurname);
         } else {
           console.error("No patient found.");
           setCurrentPatientName("Guest");
@@ -148,7 +148,7 @@ const TotalCost: React.FC = () => {
         const data = await response.json();
 
         if (Array.isArray(data) && data.length > 0) {
-          setCourse(data[0].course_count);
+          setCourse(data[0].courseCount);
         } else {
           console.error("No course data found.");
           setCourse(0);
@@ -191,16 +191,16 @@ const TotalCost: React.FC = () => {
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    if (name === "appointment_date") {
+    if (name === "appointmentDate") {
       setNewAppointmentDate(value);
     }
     console.log("New Appointment Date:", newAppointmentDate);
   };
 
-  const checkAppointmentDateAvailability = async (appointment_date: string) => {
+  const checkAppointmentDateAvailability = async (appointmentDate: string) => {
     try {
       const response = await fetch(
-        `https://dinosaur.prakasitj.com/patient/searchbyAppointmentDate/${appointment_date}`
+        `https://dinosaur.prakasitj.com/patient/searchbyAppointmentDate/${appointmentDate}`
       );
 
       if (!response.ok) {
@@ -247,7 +247,7 @@ const TotalCost: React.FC = () => {
           record_date: new Date().toISOString(),
           income_and_expenses: "income",
           cost: totalCost,
-          staff_id: currentStaffId,
+          staffId: currentStaffId,
         };
 
         const responseFinance = await fetch(
@@ -278,7 +278,7 @@ const TotalCost: React.FC = () => {
 
           const medicalRecordData = {
             cost: treatment.cost,
-            appointment_date: appointmentDate
+            appointmentDate: appointmentDate
               ? new Date(appointmentDate).toISOString()
               : new Date().toISOString(),
             doctorid: doctorId,
@@ -333,7 +333,7 @@ const TotalCost: React.FC = () => {
               use_amount: storedAmount,
               requisition_date: new Date().toISOString(),
               equipment_id: equipment.equipment_id,
-              staff_id: parseInt(currentStaffId, 10),
+              staffId: parseInt(currentStaffId, 10),
             };
 
             const responseRequisition = await fetch(
@@ -407,19 +407,19 @@ const TotalCost: React.FC = () => {
           );
           const data = await response.json();
           const patientUpdateData = {
-            patient_id: parseInt(
+            patientId: parseInt(
               sessionStorage.getItem("currentPatientID") || "0",
               10
             ),
-            name_surname: data[0].name_surname,
-            phone_number: data[0].phone_number,
+            nameSurname: data[0].nameSurname,
+            phoneNumber: data[0].phoneNumber,
             birthday: data[0].birthday,
             gender: data[0].gender,
-            appointment_date: newAppointmentDate
+            appointmentDate: newAppointmentDate
               ? new Date(newAppointmentDate).toISOString()
-              : data[0].appointment_date,
-            course_count: course,
-            first_visit_date: data[0].first_visit_date,
+              : data[0].appointmentDate,
+            courseCount: course,
+            firstVistDate: data[0].firstVistDate,
           };
 
           try {
@@ -447,7 +447,7 @@ const TotalCost: React.FC = () => {
         sessionStorage.setItem("item2Stored", "0");
         sessionStorage.setItem("item3Stored", "0");
 
-        navigate("/listViewPatient");
+        navigate("/patientList");
       } catch (error) {
         console.error("Failed to submit records:", error);
       }

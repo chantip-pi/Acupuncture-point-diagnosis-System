@@ -1,49 +1,49 @@
 export interface Patient {
-  patient_id: number;
-  name_surname: string;
-  phone_number: string;
+  patientId: number;
+  nameSurname: string;
+  phoneNumber: string;
   birthday: string;
   gender: string;
-  appointment_date: string | null;
-  course_count: number;
-  first_visit_date: string;
+  appointmentDate: string | null;
+  courseCount: number;
+  firstVistDate: string;
 }
 
 export class PatientEntity {
   constructor(
-    public readonly patient_id: number,
-    public readonly name_surname: string,
-    public readonly phone_number: string,
+    public readonly patientId: number,
+    public readonly nameSurname: string,
+    public readonly phoneNumber: string,
     public readonly birthday: string,
     public readonly gender: string,
-    public readonly appointment_date: string | null,
-    public readonly course_count: number,
-    public readonly first_visit_date: string
+    public readonly appointmentDate: string | null,
+    public readonly courseCount: number,
+    public readonly firstVistDate: string
   ) {}
 
   static fromData(data: Patient): PatientEntity {
     return new PatientEntity(
-      data.patient_id,
-      data.name_surname,
-      data.phone_number,
+      data.patientId,
+      data.nameSurname,
+      data.phoneNumber,
       data.birthday,
       data.gender,
-      data.appointment_date,
-      data.course_count,
-      data.first_visit_date
+      data.appointmentDate,
+      data.courseCount,
+      data.firstVistDate
     );
   }
 
   toData(): Patient {
     return {
-      patient_id: this.patient_id,
-      name_surname: this.name_surname,
-      phone_number: this.phone_number,
+      patientId: this.patientId,
+      nameSurname: this.nameSurname,
+      phoneNumber: this.phoneNumber,
       birthday: this.birthday,
       gender: this.gender,
-      appointment_date: this.appointment_date,
-      course_count: this.course_count,
-      first_visit_date: this.first_visit_date,
+      appointmentDate: this.appointmentDate,
+      courseCount: this.courseCount,
+      firstVistDate: this.firstVistDate,
     };
   }
 

@@ -34,7 +34,7 @@ const StaffListView: React.FC = () => {
   };
 
   const getStaffName = (staff: Staff): string => {
-    return staff.name_surname || (staff as unknown as { staff_name?: string }).staff_name || "";
+    return staff.nameSurname || (staff as unknown as { staff_name?: string }).staff_name || "";
   };
 
   const filteredStaff = useMemo(() => {
@@ -43,8 +43,8 @@ const StaffListView: React.FC = () => {
 
     return staffList.filter((staff) => {
       const name = getStaffName(staff).toLowerCase();
-      const phoneMatch = staff.staff_phone_number.includes(searchTerm);
-      const idMatch = staff.staff_id.toString().includes(searchTerm);
+      const phoneMatch = staff.phoneNumber.includes(searchTerm);
+      const idMatch = staff.staffId.toString().includes(searchTerm);
       const usernameMatch = staff.username.toLowerCase().includes(term);
       return name.includes(term) || phoneMatch || idMatch || usernameMatch;
     });
@@ -68,13 +68,13 @@ const StaffListView: React.FC = () => {
 
   const handleAddNewStaff = () => {
     ensureManager(() => {
-      navigate("/staffSignUp");
+      navigate("/addStaff");
     });
   };
 
   const handleClickList = (username: string) => {
     setSelectedStaffUsername(username);
-    navigate("/staffPage");
+    navigate("/staffDetail");
   };
 
   if (loading) return <p>Loading...</p>;
@@ -84,7 +84,7 @@ const StaffListView: React.FC = () => {
     <div className="flex">
       <SideNavBar />
       <div className="page-background" style={mainContentStyle}>
-        <div className="staff-list-view-container" style={staffListViewContainerStyle}>
+        <div className="staffListView-view-container" style={staffListViewContainerStyle}>
           <div className="header" style={headerStyle}>
             <h2 style={{ fontSize: "28px", color: "#2F919C" }}>Staff List View</h2>
             <div style={addNewStaffButtonStyle} onClick={handleAddNewStaff}>
@@ -105,7 +105,7 @@ const StaffListView: React.FC = () => {
             />
           </div>
 
-          <div className="staff-list" style={staffListStyle}>
+          <div className="staffListView" style={staffListStyle}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr>
@@ -121,10 +121,10 @@ const StaffListView: React.FC = () => {
               </thead>
               <tbody>
                 {filteredStaff.map((staff) => (
-                  <tr key={staff.staff_id} style={{ borderBottom: "1px solid white", cursor: "pointer" }}>
+                  <tr key={staff.staffId} style={{ borderBottom: "1px solid white", cursor: "pointer" }}>
                     <td style={thTdStyle} onClick={() => handleClickList(staff.username)}>{staff.username}</td>
                     <td style={thTdStyle} onClick={() => handleClickList(staff.username)}>{getStaffName(staff)}</td>
-                    <td style={thTdStyle} onClick={() => handleClickList(staff.username)}>{staff.staff_phone_number}</td>
+                    <td style={thTdStyle} onClick={() => handleClickList(staff.username)}>{staff.phoneNumber}</td>
                     <td style={thTdStyle} onClick={() => handleClickList(staff.username)}>{format(new Date(staff.birthday), "dd/MM/yyyy")}</td>
                     <td style={thTdStyle} onClick={() => handleClickList(staff.username)}>{staff.gender}</td>
                     <td style={thTdStyle} onClick={() => handleClickList(staff.username)}>{staff.role}</td>

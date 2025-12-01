@@ -30,46 +30,46 @@ export class MockDataSource {
     // Default patients
     this.patients = [
       {
-        patient_id: 1,
-        name_surname: "Alice Tan",
-        phone_number: "0812345678",
+        patientId: 1,
+        nameSurname: "Alice Tan",
+        phoneNumber: "0812345678",
         birthday: "1988-04-12",
         gender: "Female",
-        appointment_date: "2025-11-20T09:00:00Z",
-        course_count: 3,
-        first_visit_date: "2024-01-15",
+        appointmentDate: "2025-11-20T09:00:00Z",
+        courseCount: 3,
+        firstVistDate: "2024-01-15",
       },
       {
-        patient_id: 2,
-        name_surname: "Bob Cruz",
-        phone_number: "0823456789",
+        patientId: 2,
+        nameSurname: "Bob Cruz",
+        phoneNumber: "0823456789",
         birthday: "1975-11-02",
         gender: "Male",
-        appointment_date: "2025-11-21T10:30:00Z",
-        course_count: 5,
-        first_visit_date: "2023-12-10",
+        appointmentDate: "2025-11-21T10:30:00Z",
+        courseCount: 5,
+        firstVistDate: "2023-12-10",
       },
     ];
 
     // Default staff
     this.staff = [
       {
-        staff_id: 1,
+        staffId: 1,
         username: "admin",
         password: "admin123", // In production, this should be hashed
-        name_surname: "Dr. Lee",
-        staff_phone_number: "0834567890",
+        nameSurname: "Dr. Lee",
+        phoneNumber: "0834567890",
         birthday: "1980-05-20",
         gender: "Male",
         email: "dr.lee@clinic.com",
         role: "Manager",
       },
       {
-        staff_id: 2,
+        staffId: 2,
         username: "nurse.joy",
         password: "nurse123", // In production, this should be hashed
-        name_surname: "Nurse Joy",
-        staff_phone_number: "0845678901",
+        nameSurname: "Nurse Joy",
+        phoneNumber: "0845678901",
         birthday: "1990-08-15",
         gender: "Female",
         email: "nurse.joy@clinic.com",
@@ -100,7 +100,7 @@ export class MockDataSource {
 
   async getPatientById(id: number): Promise<Patient | null> {
     await this.simulateDelay();
-    return this.patients.find((p) => p.patient_id === id) || null;
+    return this.patients.find((p) => p.patientId === id) || null;
   }
 
   async getPatientsByAppointmentDate(date: string): Promise<Patient[]> {
@@ -108,17 +108,17 @@ export class MockDataSource {
     // Normalize date for comparison (compare date part only)
     const targetDate = new Date(date).toISOString().split("T")[0];
     return this.patients.filter((p) => {
-      if (!p.appointment_date) return false;
-      const patientDate = new Date(p.appointment_date).toISOString().split("T")[0];
+      if (!p.appointmentDate) return false;
+      const patientDate = new Date(p.appointmentDate).toISOString().split("T")[0];
       return patientDate === targetDate;
     });
   }
 
-  async createPatient(patient: Omit<Patient, "patient_id">): Promise<Patient> {
+  async createPatient(patient: Omit<Patient, "patientId">): Promise<Patient> {
     await this.simulateDelay();
     const newPatient: Patient = {
       ...patient,
-      patient_id: this.nextPatientId++,
+      patientId: this.nextPatientId++,
     };
     this.patients.push(newPatient);
     return { ...newPatient };
@@ -126,9 +126,9 @@ export class MockDataSource {
 
   async updatePatient(patient: Patient): Promise<Patient> {
     await this.simulateDelay();
-    const index = this.patients.findIndex((p) => p.patient_id === patient.patient_id);
+    const index = this.patients.findIndex((p) => p.patientId === patient.patientId);
     if (index === -1) {
-      throw new Error(`Patient with id ${patient.patient_id} not found`);
+      throw new Error(`Patient with id ${patient.patientId} not found`);
     }
     this.patients[index] = { ...patient };
     return { ...this.patients[index] };
@@ -142,7 +142,7 @@ export class MockDataSource {
 
   async getStaffById(id: number): Promise<Staff | null> {
     await this.simulateDelay();
-    return this.staff.find((s) => s.staff_id === id) || null;
+    return this.staff.find((s) => s.staffId === id) || null;
   }
 
   async getStaffByUsername(username: string): Promise<Staff | null> {
@@ -158,11 +158,11 @@ export class MockDataSource {
     return staff ? { ...staff } : null;
   }
 
-  async createStaff(staff: Omit<Staff, "staff_id">): Promise<Staff> {
+  async createStaff(staff: Omit<Staff, "staffId">): Promise<Staff> {
     await this.simulateDelay();
     const newStaff: Staff = {
       ...staff,
-      staff_id: this.nextStaffId++,
+      staffId: this.nextStaffId++,
     };
     this.staff.push(newStaff);
     return { ...newStaff };
@@ -170,9 +170,9 @@ export class MockDataSource {
 
   async updateStaff(staff: Staff): Promise<Staff> {
     await this.simulateDelay();
-    const index = this.staff.findIndex((s) => s.staff_id === staff.staff_id);
+    const index = this.staff.findIndex((s) => s.staffId === staff.staffId);
     if (index === -1) {
-      throw new Error(`Staff with id ${staff.staff_id} not found`);
+      throw new Error(`Staff with id ${staff.staffId} not found`);
     }
     this.staff[index] = { ...staff };
     return { ...this.staff[index] };

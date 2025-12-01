@@ -101,8 +101,8 @@ const { addPatient, loading, error } = useAddPatient();
 
 const handleSubmit = async () => {
   const result = await addPatient({
-    name_surname: "John Doe",
-    phone_number: "1234567890",
+    nameSurname: "John Doe",
+    phoneNumber: "1234567890",
     // ... other fields
   });
   

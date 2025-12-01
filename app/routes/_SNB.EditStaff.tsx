@@ -3,10 +3,10 @@ import React, { useEffect, useState, FormEvent } from "react";
 import { getSelectedStaffUsername } from "~/presentation/session/staffSelectionSession";
 
 interface Staff {
-  staff_id: number;
+  staffId: number;
   username: string;
   staff_name: string;
-  staff_phone_number: string;
+  phoneNumber: string;
   birthday: string;
   gender: string;
   role: string;
@@ -22,10 +22,10 @@ function EditStaff() {
   const [currentStaff, setCurrentStaff] = useState<string>("Guest");
 
   const [formData, setFormData] = useState({
-    staff_id: "",
+    staffId: "",
     username: "",
     staff_name: "", 
-    staff_phone_number: "",
+    phoneNumber: "",
     birthday: "",
     gender: "",
     role: "",
@@ -57,10 +57,10 @@ function EditStaff() {
           const formattedBirthday = data[0].birthday.split("T")[0];
   
           setFormData({
-            staff_id: data[0].staff_id,
+            staffId: data[0].staffId,
             username: data[0].username,
             staff_name: data[0].staff_name,
-            staff_phone_number: data[0].staff_phone_number,
+            phoneNumber: data[0].phoneNumber,
             birthday: formattedBirthday,
             gender: data[0].gender,
             role: data[0].role,
@@ -154,7 +154,7 @@ function EditStaff() {
   };
   
   const validateForm = () => {
-    const { staff_phone_number, birthday, email } = formData;
+    const { phoneNumber, birthday, email } = formData;
     const telRegex = /^\d{10}$/;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; 
 
@@ -163,7 +163,7 @@ function EditStaff() {
       return false;
     }
 
-    if (!telRegex.test(staff_phone_number)) {
+    if (!telRegex.test(phoneNumber)) {
       setError("Telephone number must be 10 digits.");
       return false;
     }
@@ -219,14 +219,14 @@ function EditStaff() {
             </div>
 
             <div className="mb-4">
-              <label htmlFor="staff_phone_number" className="block mb-1">
+              <label htmlFor="phoneNumber" className="block mb-1">
                 Telephone:
               </label>
               <input
                 type="string"
-                id="staff_phone_number"
-                name="staff_phone_number"
-                value={formData.staff_phone_number}
+                id="phoneNumber"
+                name="phoneNumber"
+                value={formData.phoneNumber}
                 onChange={handleChange}
                 className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
                 required

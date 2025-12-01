@@ -20,7 +20,7 @@ const Equipment: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<string>("Guest");
 
   const handleHistoryClick = () => {
-    navigate("/equipmentHistory");
+    navigate("/equimentHistory");
   };
 
   useEffect(() => {
@@ -68,7 +68,7 @@ const Equipment: React.FC = () => {
 
   const handleEditEquipment = () => {
     if (isManager) {
-      navigate("/editEquipment");
+      navigate("/edit-equipment");
     }
     else {
       alert("You don't have access to edit.")

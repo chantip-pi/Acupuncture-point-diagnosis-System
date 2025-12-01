@@ -13,10 +13,10 @@ interface TreatmentCardProps {
 }
 
 interface Staff {
-  staff_id: number;
+  staffId: number;
   username: string;
   staff_name: string;
-  staff_phone_number: string;
+  phoneNumber: string;
   birthday: string;
   gender: string;
   role: string;
@@ -146,7 +146,7 @@ const handleItem3Change = (e: React.ChangeEvent<HTMLInputElement>) => {
           <select className="w-[19.09rem] rounded-3xl text-center" onChange={handleDoctorChange}>
             <option value="">-- Select Doctor --</option>
             {doctorList.map((doctor) => (
-              <option key={doctor.staff_id} value={doctor.staff_id}>
+              <option key={doctor.staffId} value={doctor.staffId}>
                 {doctor.staff_name}
               </option>
             ))}

@@ -25,7 +25,7 @@ export class MockStaffRepository implements IStaffRepository {
     return this.dataSource.login(username, password);
   }
 
-  async create(staff: Omit<Staff, "staff_id">): Promise<Staff> {
+  async create(staff: Omit<Staff, "staffId">): Promise<Staff> {
     return this.dataSource.createStaff(staff);
   }
 

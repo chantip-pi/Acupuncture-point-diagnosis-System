@@ -7,7 +7,7 @@ export class AddPatientUseCase {
 
   async execute(dto: CreatePatientDTO): Promise<void> {
     // Validate input
-    if (!PatientValidationService.validatePhoneNumber(dto.phone_number)) {
+    if (!PatientValidationService.validatePhoneNumber(dto.phoneNumber)) {
       throw new Error("Telephone number must be 10 digits.");
     }
 
@@ -15,17 +15,17 @@ export class AddPatientUseCase {
       throw new Error("Birthday cannot be in the future.");
     }
 
-    if (!PatientValidationService.validateCourseCount(dto.course_count)) {
+    if (!PatientValidationService.validateCourseCount(dto.courseCount)) {
       throw new Error("Course count cannot be negative.");
     }
 
-    if (!PatientValidationService.validateAppointmentDate(dto.appointment_date)) {
+    if (!PatientValidationService.validateAppointmentDate(dto.appointmentDate)) {
       throw new Error("You need to provide an appointment date.");
     }
 
     // Check appointment date availability
     const existingPatients = await this.patientRepository.getByAppointmentDate(
-      new Date(dto.appointment_date).toISOString()
+      new Date(dto.appointmentDate).toISOString()
     );
 
     if (existingPatients.length > 0) {

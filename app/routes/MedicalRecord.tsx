@@ -8,7 +8,7 @@ import { format } from "date-fns";
 interface MedicalRecordList {
   record_id: number;
   cost: string;
-  appointment_date: string;
+  appointmentDate: string;
   doctorid: number;
   patientid: number;
   staffid: number;
@@ -107,7 +107,7 @@ function MedicalRecord() {
                     className="pl-8 py-2"
                     style={{ borderBottom: "1px solid white" }}
                   >
-                    {format(new Date(record.appointment_date), 'dd/MM/yyyy')}
+                    {format(new Date(record.appointmentDate), 'dd/MM/yyyy')}
                   </td>
                   <td
                     className="pl-[2rem] py-2"

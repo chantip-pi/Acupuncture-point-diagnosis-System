@@ -3,7 +3,7 @@ import { useGetStaffByUsername } from "~/presentation/hooks/useGetStaffByUsernam
 import { getUserSession } from "~/presentation/session/userSession";
 import { getSelectedStaffUsername } from "~/presentation/session/staffSelectionSession";
 
-function StaffPage() {
+function StaffDetail() {
   const [username, setUsername] = useState<string | null>(null);
   const [sessionError, setSessionError] = useState<string | null>(null);
 
@@ -50,8 +50,8 @@ function StaffPage() {
           ) : staff ? (
             <>
               <OutputBox title="Username:" output={staff.username} />
-              <OutputBox title="Name Surname:" output={staff.name_surname} />
-              <OutputBox title="Phone Number:" output={staff.staff_phone_number} />
+              <OutputBox title="Name Surname:" output={staff.nameSurname} />
+              <OutputBox title="Phone Number:" output={staff.phoneNumber} />
               <OutputBox title="Age:" output={age} />
               <OutputBox title="Gender:" output={staff.gender} />
               <OutputBox title="Role:" output={staff.role} />
@@ -101,4 +101,4 @@ function calculateAge(birthday: string): string {
   return String(age);
 }
 
-export default StaffPage;
+export default StaffDetail;

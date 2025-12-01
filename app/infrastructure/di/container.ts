@@ -9,6 +9,7 @@ import { MockPatientRepository } from "../repositories/MockPatientRepository";
 import { MockStaffRepository } from "../repositories/MockStaffRepository";
 import { MockDataSource } from "../datasource/MockDataSource";
 import { AddPatientUseCase } from "~/application/use-cases/patient/AddPatientUseCase";
+import { AddStaffUseCase } from "~/application/use-cases/staff/AddStaffUseCase";
 import { GetPatientListUseCase } from "~/application/use-cases/patient/GetPatientListUseCase";
 import { GetPatientByIdUseCase } from "~/application/use-cases/patient/GetPatientByIdUseCase";
 import { UpdatePatientUseCase } from "~/application/use-cases/patient/UpdatePatientUseCase";
@@ -43,4 +44,5 @@ export const getPatientsByAppointmentDateUseCase = new GetPatientsByAppointmentD
 export const loginUseCase = new LoginUseCase(staffRepository);
 export const getStaffListUseCase = new GetStaffListUseCase(staffRepository);
 export const getStaffByUsernameUseCase = new GetStaffByUsernameUseCase(staffRepository);
+export const addStaffUseCase = new AddStaffUseCase(staffRepository);
 

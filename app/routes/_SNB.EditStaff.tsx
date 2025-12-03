@@ -3,7 +3,10 @@ import React, { useEffect, useState, FormEvent } from "react";
 import { useGetStaffByUsername } from "~/presentation/hooks/staff/useGetStaffByUsername";
 import ErrorPage from "./components/common/ErrorPage";
 import LoadingPage from "./components/common/LoadingPage";
+import ConfirmDialog from "./components/common/ConfirmDialog";
 import { useUpdateStaff } from "~/presentation/hooks/staff/useUpdateStaff";
+import { useDeleteStaff } from "~/presentation/hooks/staff/useDeleteStaff";
+
 import { Staff } from "~/domain/entities/Staff";
 import { getSelectedStaffUsername } from "~/presentation/session/staffSelectionSession";
 import { getStaffByUsernameUseCase } from "~/infrastructure/di/container";
@@ -11,19 +14,25 @@ import { getStaffByUsernameUseCase } from "~/infrastructure/di/container";
 function EditStaff() {
   const navigate = useNavigate();
 
-  // Get currently selected staff username from session
-  const selectedUsername = getSelectedStaffUsername();
+  // Load selected username on the client after hydration to avoid SSR/CSR mismatch
+  const [selectedUsername, setSelectedUsername] = useState<string | null>(null);
+  const [isSessionLoaded, setIsSessionLoaded] = useState(false);
 
-  // If no staff is selected or user has no permission, block access
-  if (!selectedUsername || selectedUsername.toLowerCase() === "guest") {
-    return <ErrorPage message="No staff selected or no permission." />;
-  }
+  useEffect(() => {
+    const username = getSelectedStaffUsername();
+    setSelectedUsername(username);
+    setIsSessionLoaded(true);
+  }, []);
 
   const { staff, loading, error } = useGetStaffByUsername(selectedUsername);
   const { updateStaff, loading: updateLoading, error: updateError } =
     useUpdateStaff();
+  const { deleteStaff, loading: deleteLoading, error: deleteError } =
+    useDeleteStaff();
 
   const [formError, setFormError] = useState<string | null>(null);
+  const [showDialog, setShowDialog] = useState(false);
+
   const [formData, setFormData] = useState({
     username: "",
     nameSurname: "",
@@ -50,6 +59,16 @@ function EditStaff() {
       });
     }
   }, [staff]);
+
+  // While we haven't loaded the session on the client yet, keep UI consistent
+  if (!isSessionLoaded) {
+    return <LoadingPage />;
+  }
+
+  // If no staff is selected or user has no permission, block access
+  if (!selectedUsername || selectedUsername.toLowerCase() === "guest") {
+    return <ErrorPage message="No staff selected or no permission." />;
+  }
 
   if (loading) {
     return <LoadingPage />;
@@ -170,6 +189,15 @@ function EditStaff() {
     return true;
   };
 
+  const handleDeleteUser = async () => {
+    try {
+      await deleteStaff(staff.staffId);
+      navigate("/staffListView");
+    } catch (err) {
+      setFormError("Error deleting staff. Please try again.");
+    }
+  };
+
 
   return (
     <div className="flex flex-col w-[70svw] bg-[#DCE8E9] min-h-screen">
@@ -180,7 +208,28 @@ function EditStaff() {
             <span className="text-[#1FA1AF] text-2xl">
               {formData.nameSurname}
             </span>
+            <div className="flex justify-center">
+              <button
+                type="button"
+                className="py-2 px-4 bg-[#FF0000] text-white rounded-3xl hover:bg-red-700"
+                disabled={updateLoading || deleteLoading}
+                onClick={() => setShowDialog(true)}
+              >
+                Delete
+              </button>
+            </div>
           </div>
+
+          <ConfirmDialog
+            isOpen={showDialog}
+         title={`Delete ${formData.nameSurname}`}
+            message="Do you really want to delete this user?"
+            cancelText="Cancel"
+            isLoading={updateLoading}
+            onConfirm={handleDeleteUser}
+            onCancel={() => setShowDialog(false)}
+          />
+
 
           <form onSubmit={handleSubmit} className="flex flex-col flex-grow">
             <div className="mb-4">

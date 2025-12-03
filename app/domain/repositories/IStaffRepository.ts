@@ -7,5 +7,6 @@ export interface IStaffRepository {
   login(username: string, password: string): Promise<Staff | null>;
   create(staff: Omit<Staff, "staffId">): Promise<Staff>;
   update(staff: Staff): Promise<Staff>;
+  delete(staffId: number): Promise<void>;
 }
 

@@ -31,5 +31,9 @@ export class StaffRepository implements IStaffRepository {
   async update(staff: Staff): Promise<Staff> {
     return this.dataSource.update(staff);
   }
+
+  async delete(staffId: number): Promise<void> {
+    return this.dataSource.delete(staffId);
+  }
 }
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useGetStaffByUsername } from "~/presentation/hooks/useGetStaffByUsername";
+import { useGetStaffByUsername } from "~/presentation/hooks/staff/useGetStaffByUsername";
 import { getUserSession } from "~/presentation/session/userSession";
 import { getSelectedStaffUsername } from "~/presentation/session/staffSelectionSession";
 

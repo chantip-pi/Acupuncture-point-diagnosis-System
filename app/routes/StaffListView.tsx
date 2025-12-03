@@ -4,7 +4,7 @@ import { faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import SideNavBar from "app/routes/_SNB";
 import { useNavigate } from "@remix-run/react";
 import { format } from "date-fns";
-import { useGetStaffList } from "~/presentation/hooks/useGetStaffList";
+import { useGetStaffList } from "~/presentation/hooks/staff/useGetStaffList";
 import { Staff } from "~/domain/entities/Staff";
 import { getUserSession } from "~/presentation/session/userSession";
 import { setSelectedStaffUsername } from "~/presentation/session/staffSelectionSession";

@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "@remix-run/react";
 import { format } from "date-fns";
-import { useGetPatientList } from "~/presentation/hooks/useGetPatientList";
+import { useGetPatientList } from "~/presentation/hooks/patient/useGetPatientList";
 import { Patient } from "~/domain/entities/Patient";
 
 const PatientList: React.FC = () => {

@@ -1,6 +1,6 @@
 import { useNavigate } from "@remix-run/react";
 import React, { useState, ChangeEvent, FormEvent, useEffect } from "react";
-import { useAddStaff } from "~/presentation/hooks/useAddStaff";
+import { useAddStaff } from "~/presentation/hooks/staff/useAddStaff";
 
 function SignUp() {
   const navigate = useNavigate();
@@ -193,7 +193,7 @@ function SignUp() {
                 <option value="">Select Role</option>
                 <option value="Staff">Staff</option>
                 <option value="Doctor">Doctor</option>
-                <option value="Nurse">Doctor</option>
+                <option value="Nurse">Nurse</option>
               </select>
             </div>
 

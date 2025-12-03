@@ -2,7 +2,7 @@ import { CiUser } from "react-icons/ci";
 import { useNavigate } from "@remix-run/react";
 import React, { useMemo } from "react";
 import { format } from "date-fns";
-import { useGetPatientsByAppointmentDate } from "~/presentation/hooks/useGetPatientsByAppointmentDate";
+import { useGetPatientsByAppointmentDate } from "~/presentation/hooks/patient/useGetPatientsByAppointmentDate";
 import { Patient } from "~/domain/entities/Patient";
 
 const Home: React.FC = () => {

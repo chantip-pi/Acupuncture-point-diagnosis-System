@@ -1,6 +1,6 @@
 import { useNavigate } from "@remix-run/react";
 import React, { useEffect, useMemo } from "react";
-import { useGetPatientById } from "~/presentation/hooks/useGetPatientById";
+import { useGetPatientById } from "~/presentation/hooks/patient/useGetPatientById";
 import { Patient } from "~/domain/entities/Patient";
 
 function PatientDetail() {

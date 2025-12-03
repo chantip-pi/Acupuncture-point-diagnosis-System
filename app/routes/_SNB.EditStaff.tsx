@@ -1,30 +1,32 @@
 import { useNavigate } from "@remix-run/react";
 import React, { useEffect, useState, FormEvent } from "react";
+import { useGetStaffByUsername } from "~/presentation/hooks/staff/useGetStaffByUsername";
+import ErrorPage from "./components/common/ErrorPage";
+import LoadingPage from "./components/common/LoadingPage";
+import { useUpdateStaff } from "~/presentation/hooks/staff/useUpdateStaff";
+import { Staff } from "~/domain/entities/Staff";
 import { getSelectedStaffUsername } from "~/presentation/session/staffSelectionSession";
-
-interface Staff {
-  staffId: number;
-  username: string;
-  staff_name: string;
-  phoneNumber: string;
-  birthday: string;
-  gender: string;
-  role: string;
-  email: string;
-}
+import { getStaffByUsernameUseCase } from "~/infrastructure/di/container";
 
 function EditStaff() {
   const navigate = useNavigate();
-  const [staffData, setStaffData] = useState<Staff | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [currentUser, setCurrentUser] = useState<string>("Guest");
-  const [currentStaff, setCurrentStaff] = useState<string>("Guest");
 
+  // Get currently selected staff username from session
+  const selectedUsername = getSelectedStaffUsername();
+
+  // If no staff is selected or user has no permission, block access
+  if (!selectedUsername || selectedUsername.toLowerCase() === "guest") {
+    return <ErrorPage message="No staff selected or no permission." />;
+  }
+
+  const { staff, loading, error } = useGetStaffByUsername(selectedUsername);
+  const { updateStaff, loading: updateLoading, error: updateError } =
+    useUpdateStaff();
+
+  const [formError, setFormError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
-    staffId: "",
     username: "",
-    staff_name: "", 
+    nameSurname: "",
     phoneNumber: "",
     birthday: "",
     gender: "",
@@ -32,57 +34,45 @@ function EditStaff() {
     email: "",
   });
 
+  // When staff data is loaded, populate the form
   useEffect(() => {
-    const fetchData = async () => {
-      const storedStaff = getSelectedStaffUsername();
-      const currentStaffValue = storedStaff ? storedStaff.toLowerCase() : "guest";
-      setCurrentStaff(currentStaffValue);
-  
-      if (currentStaffValue === "guest") {
-        setError("No username found in session.");
-        setLoading(false);
-        return;
-      }
-  
-      try {
-        const response = await fetch(`https://dinosaur.prakasitj.com/staff/searchbyUsername/${currentStaffValue}`);
-        if (!response.ok) {
-          throw new Error("Failed to fetch staff data");
-        }
-  
-        const data = await response.json();
-        if (data.length > 0) {
-          setStaffData(data[0]);
-  
-          const formattedBirthday = data[0].birthday.split("T")[0];
-  
-          setFormData({
-            staffId: data[0].staffId,
-            username: data[0].username,
-            staff_name: data[0].staff_name,
-            phoneNumber: data[0].phoneNumber,
-            birthday: formattedBirthday,
-            gender: data[0].gender,
-            role: data[0].role,
-            email: data[0].email,
-          });
-        } else {
-          setError("No data found for this username.");
-        }
-      } catch (err) {
-        setError("Failed to load data");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-  
-    fetchData();
-  }, []);
-   
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    if (staff && staff.staffId) {
+      const formattedBirthday = staff.birthday.split("T")[0];
+
+      setFormData({
+        username: staff.username,
+        nameSurname: staff.nameSurname,
+        phoneNumber: staff.phoneNumber,
+        birthday: formattedBirthday,
+        gender: staff.gender,
+        role: staff.role,
+        email: staff.email,
+      });
+    }
+  }, [staff]);
+
+  if (loading) {
+    return <LoadingPage />;
+  }
+
+  if (error) {
+    return (
+      <ErrorPage message={error} onRetry={() => window.location.reload()} />
+    );
+  }
+
+  if (!staff) {
+    return <ErrorPage message="No staff selected or staff not found." />;
+  }
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
-    const formattedValue = name === 'gender' ? value.charAt(0).toUpperCase() + value.slice(1) : value;
+    const formattedValue =
+      name === "gender"
+        ? value.charAt(0).toUpperCase() + value.slice(1)
+        : value;
 
     setFormData((prevData) => ({
       ...prevData,
@@ -92,91 +82,94 @@ function EditStaff() {
 
   const checkUsernameAvailability = async () => {
     try {
-      if (formData.username === staffData?.username) {
+      // If username hasn't changed, it's always valid
+      if (formData.username === staff.username) {
         return true;
       }
-  
-      const response = await fetch(`https://dinosaur.prakasitj.com/staff/searchbyUsername/${formData.username}`);
-      if (!response.ok) {
-        throw new Error("Error checking username availability");
+
+      // Check if another staff member already uses this username
+      try {
+        const existingStaff: Staff | null =
+          await getStaffByUsernameUseCase.execute(formData.username);
+
+        if (existingStaff && existingStaff.staffId !== staff.staffId) {
+          setFormError(
+            "Username already taken. Please choose another username.",
+          );
+          return false;
+        }
+
+        return true;
+      } catch {
+        // If lookup fails (e.g. user not found), treat as available
+        return true;
       }
-  
-      const data = await response.json();
-      if (data.length > 0) {
-        setError("Username already taken. Please choose another username.");
-        return false;
-      }
-  
-      return true;
     } catch (error) {
-      setError("Error checking username availability. Please try again.");
+      setFormError("Error checking username availability. Please try again.");
       console.error(error);
       return false;
     }
   };
-  
-  
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-  
+
     if (!validateForm()) return;
 
     const isUsernameAvailable = await checkUsernameAvailability();
     if (!isUsernameAvailable) return;
 
-    console.log("Form data being submitted:", formData); 
-  
+    console.log("Form data being submitted:", formData);
+
     submitToApi();
-  };  
+  };
 
   const submitToApi = async () => {
     try {
-      const response = await fetch("https://dinosaur.prakasitj.com/staff/editStaff", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-  
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Full error response:", errorData);
-        setError(errorData.message || "Failed to save staff data.");
-        return;
+      // Prepare DTO for update
+      const dto = {
+        staffId: staff.staffId,
+        password: staff.password,
+        ...formData,
+      };
+      const result = await updateStaff(dto);
+      if (result.success) {
+        console.log("Data successfully saved");
+        navigate("/staffListView");
+      } else {
+        setFormError(result.error || "Failed to save staff data.");
       }
-  
-      console.log("Data successfully saved");
-      navigate("/staffListView");
     } catch (err) {
-      setError("Error submitting data. Please try again.");
+      setFormError("Error submitting data. Please try again.");
       console.error("Request error:", err);
     }
   };
-  
+
   const validateForm = () => {
     const { phoneNumber, birthday, email } = formData;
     const telRegex = /^\d{10}$/;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailRegex.test(email)) {
-      setError("Your email is not the right pattern.");
+      setFormError("Your email is not the right pattern.");
       return false;
     }
 
     if (!telRegex.test(phoneNumber)) {
-      setError("Telephone number must be 10 digits.");
+      setFormError("Telephone number must be 10 digits.");
       return false;
     }
 
     const birthDate = new Date(birthday);
     const today = new Date();
     if (birthDate > today) {
-      setError("Birthday cannot be in the future.");
+      setFormError("Birthday cannot be in the future.");
       return false;
     }
 
     return true;
   };
+
 
   return (
     <div className="flex flex-col w-[70svw] bg-[#DCE8E9] min-h-screen">
@@ -184,7 +177,9 @@ function EditStaff() {
         <div className="p-6 border border-gray-300 rounded-3xl bg-white shadow-lg w-[50svw] flex flex-col">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-[#1FA1AF] text-2xl">Edit Staff</h1>
-            <span className="text-[#1FA1AF] text-2xl">{formData.staff_name}</span>
+            <span className="text-[#1FA1AF] text-2xl">
+              {formData.nameSurname}
+            </span>
           </div>
 
           <form onSubmit={handleSubmit} className="flex flex-col flex-grow">
@@ -204,14 +199,14 @@ function EditStaff() {
             </div>
 
             <div className="mb-4">
-              <label htmlFor="staff_name" className="block mb-1">
+              <label htmlFor="nameSurname" className="block mb-1">
                 Name:
               </label>
               <input
                 type="text"
-                id="staff_name"
-                name="staff_name"
-                value={formData.staff_name}
+                id="nameSurname"
+                name="nameSurname"
+                value={formData.nameSurname}
                 onChange={handleChange}
                 className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
                 required
@@ -299,14 +294,15 @@ function EditStaff() {
               />
             </div>
 
-            {error && <p className="text-red-500 mb-4">{error}</p>}
+            {(formError || updateError) && <p className="text-red-500 mb-4">{formError || updateError}</p>}
 
             <div className="flex justify-center mt-auto">
               <button
                 type="submit"
                 className="w-1/2 py-2 px-4 bg-[#1FA1AF] text-white rounded-3xl"
+                disabled={updateLoading}
               >
-                Save Changes
+                {updateLoading ? "Saving..." : "Save Changes"}
               </button>
             </div>
           </form>

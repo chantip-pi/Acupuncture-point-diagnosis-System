@@ -1,6 +1,6 @@
 import React, { useState, ChangeEvent, FormEvent } from "react";
 import { useNavigate } from "@remix-run/react";
-import { useAddPatient } from "~/presentation/hooks/useAddPatient";
+import { useAddPatient } from "~/presentation/hooks/patient/useAddPatient";
 
 function AddPatient() {
   const [formData, setFormData] = useState({

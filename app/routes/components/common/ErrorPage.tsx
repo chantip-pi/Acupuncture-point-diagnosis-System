@@ -46,7 +46,7 @@ const ErrorPage: React.FC<ErrorPageProps> = ({
 // Styles
 const containerStyle: React.CSSProperties = {
   width: "1116px",
-  height: "968px",
+  height: "100vh",
   padding: "20px",
   backgroundColor: "#ffffff",
   borderRadius: "50px 5px 5px 50px",

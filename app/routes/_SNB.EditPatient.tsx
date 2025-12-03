@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "@remix-run/react";
-import { useGetPatientById } from "~/presentation/hooks/useGetPatientById";
-import { useUpdatePatient } from "~/presentation/hooks/useUpdatePatient";
+import { useGetPatientById } from "~/presentation/hooks/patient/useGetPatientById";
+import { useUpdatePatient } from "~/presentation/hooks/patient/useUpdatePatient";
 import { Patient } from "~/domain/entities/Patient";
 
 

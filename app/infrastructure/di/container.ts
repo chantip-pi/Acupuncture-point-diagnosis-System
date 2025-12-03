@@ -1,7 +1,6 @@
 
 import { IPatientRepository } from "~/domain/repositories/IPatientRepository";
 import { IStaffRepository } from "~/domain/repositories/IStaffRepository";
-import { PatientRepository } from "../repositories/PatientRepository";
 import { MockPatientRepository } from "../repositories/MockPatientRepository";
 import { StaffRepository } from "../repositories/StaffRepository";
 import { MockDataSource } from "../datasource/MockDataSource";
@@ -15,6 +14,7 @@ import { GetPatientsByAppointmentDateUseCase } from "~/application/use-cases/pat
 import { LoginUseCase } from "~/application/use-cases/staff/LoginUseCase";
 import { GetStaffListUseCase } from "~/application/use-cases/staff/GetStaffListUseCase";
 import { GetStaffByUsernameUseCase } from "~/application/use-cases/staff/GetStaffByUsernameUseCase";
+import { UpdateStaffUseCase } from "~/application/use-cases/staff/UpdateStaffUseCase";
 
 // Initialize repositories based on datasource configuration
 let patientRepository: IPatientRepository;
@@ -30,10 +30,13 @@ export const addPatientUseCase = new AddPatientUseCase(patientRepository);
 export const getPatientListUseCase = new GetPatientListUseCase(patientRepository);
 export const getPatientByIdUseCase = new GetPatientByIdUseCase(patientRepository);
 export const updatePatientUseCase = new UpdatePatientUseCase(patientRepository);
+
 export const getPatientsByAppointmentDateUseCase = new GetPatientsByAppointmentDateUseCase(patientRepository);
 
 export const loginUseCase = new LoginUseCase(staffRepository);
 export const getStaffListUseCase = new GetStaffListUseCase(staffRepository);
 export const getStaffByUsernameUseCase = new GetStaffByUsernameUseCase(staffRepository);
 export const addStaffUseCase = new AddStaffUseCase(staffRepository);
+export const updateStaffUseCase = new UpdateStaffUseCase(staffRepository);
+
 

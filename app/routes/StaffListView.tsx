@@ -8,6 +8,8 @@ import { useGetStaffList } from "~/presentation/hooks/useGetStaffList";
 import { Staff } from "~/domain/entities/Staff";
 import { getUserSession } from "~/presentation/session/userSession";
 import { setSelectedStaffUsername } from "~/presentation/session/staffSelectionSession";
+import ErrorPage from "~/routes/components/common/ErrorPage";
+import LoadingPage from "./components/common/LoadingPage";
 
 const StaffListView: React.FC = () => {
   const { staffList, loading, error } = useGetStaffList();
@@ -16,6 +18,22 @@ const StaffListView: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<string>("Guest");
 
   const navigate = useNavigate();
+
+  const handleRetry = () => {
+    window.location.reload();
+  };
+
+  // Render different states
+  const renderContent = () => {
+    if (loading) {
+      return <LoadingPage />;
+      
+    }
+
+    if (error) {
+      return <ErrorPage message={error} onRetry={handleRetry} />;
+    }
+  };
 
   useEffect(() => {
     const session = getUserSession();
@@ -76,22 +94,25 @@ const StaffListView: React.FC = () => {
     setSelectedStaffUsername(username);
     navigate("/staffDetail");
   };
-
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>{error}</p>;
-
   return (
     <div className="flex">
       <SideNavBar />
       <div className="page-background" style={mainContentStyle}>
-        <div className="staffListView-view-container" style={staffListViewContainerStyle}>
+        <div
+          className="staffListView-view-container"
+          style={staffListViewContainerStyle}
+        >
           <div className="header" style={headerStyle}>
-            <h2 style={{ fontSize: "28px", color: "#2F919C" }}>Staff List View</h2>
+            <h2 style={{ fontSize: "28px", color: "#2F919C" }}>
+              Staff List View
+            </h2>
             <div style={addNewStaffButtonStyle} onClick={handleAddNewStaff}>
               <div style={iconContainerStyle}>
                 <FontAwesomeIcon icon={faUserPlus} style={{ color: "#000" }} />
               </div>
-              <span style={{ color: "#000000", fontSize: "16px" }}>Add new Staff</span>
+              <span style={{ color: "#000000", fontSize: "16px" }}>
+                Add new Staff
+              </span>
             </div>
           </div>
 
@@ -121,14 +142,55 @@ const StaffListView: React.FC = () => {
               </thead>
               <tbody>
                 {filteredStaff.map((staff) => (
-                  <tr key={staff.staffId} style={{ borderBottom: "1px solid white", cursor: "pointer" }}>
-                    <td style={thTdStyle} onClick={() => handleClickList(staff.username)}>{staff.username}</td>
-                    <td style={thTdStyle} onClick={() => handleClickList(staff.username)}>{getStaffName(staff)}</td>
-                    <td style={thTdStyle} onClick={() => handleClickList(staff.username)}>{staff.phoneNumber}</td>
-                    <td style={thTdStyle} onClick={() => handleClickList(staff.username)}>{format(new Date(staff.birthday), "dd/MM/yyyy")}</td>
-                    <td style={thTdStyle} onClick={() => handleClickList(staff.username)}>{staff.gender}</td>
-                    <td style={thTdStyle} onClick={() => handleClickList(staff.username)}>{staff.role}</td>
-                    <td style={thTdStyle} onClick={() => handleClickList(staff.username)}>{staff.email}</td>
+                  <tr
+                    key={staff.staffId}
+                    style={{
+                      borderBottom: "1px solid white",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <td
+                      style={thTdStyle}
+                      onClick={() => handleClickList(staff.username)}
+                    >
+                      {staff.username}
+                    </td>
+                    <td
+                      style={thTdStyle}
+                      onClick={() => handleClickList(staff.username)}
+                    >
+                      {getStaffName(staff)}
+                    </td>
+                    <td
+                      style={thTdStyle}
+                      onClick={() => handleClickList(staff.username)}
+                    >
+                      {staff.phoneNumber}
+                    </td>
+                    <td
+                      style={thTdStyle}
+                      onClick={() => handleClickList(staff.username)}
+                    >
+                      {format(new Date(staff.birthday), "dd/MM/yyyy")}
+                    </td>
+                    <td
+                      style={thTdStyle}
+                      onClick={() => handleClickList(staff.username)}
+                    >
+                      {staff.gender}
+                    </td>
+                    <td
+                      style={thTdStyle}
+                      onClick={() => handleClickList(staff.username)}
+                    >
+                      {staff.role}
+                    </td>
+                    <td
+                      style={thTdStyle}
+                      onClick={() => handleClickList(staff.username)}
+                    >
+                      {staff.email}
+                    </td>
                     <td style={thTdStyle}>
                       <a
                         onClick={() => handleEditStaff(staff.username)}

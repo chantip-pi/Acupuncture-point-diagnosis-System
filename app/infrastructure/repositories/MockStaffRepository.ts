@@ -1,36 +1,35 @@
 import { IStaffRepository } from "~/domain/repositories/IStaffRepository";
 import { Staff } from "~/domain/entities/Staff";
-import { MockDataSource } from "../datasource/MockDataSource";
+import { StaffDataSource } from "../datasource/StaffDataSource";
 
 /**
- * Mock implementation of StaffRepository using in-memory datasource.
- * This can be easily swapped with the real StaffRepository.
+ * This can be easily swapped with  MockDataSource in dataSource field.
  */
 export class MockStaffRepository implements IStaffRepository {
-  constructor(private readonly dataSource: MockDataSource) {}
+  constructor(private readonly dataSource: StaffDataSource) {}
 
   async getAll(): Promise<Staff[]> {
-    return this.dataSource.getAllStaff();
+    return this.dataSource.getAll();
   }
 
   async getById(id: number): Promise<Staff | null> {
-    return this.dataSource.getStaffById(id);
+    return this.dataSource.getById(id);
   }
 
   async getByUsername(username: string): Promise<Staff | null> {
-    return this.dataSource.getStaffByUsername(username);
+    return this.dataSource.getByUsername(username);
   }
 
   async login(username: string, password: string): Promise<Staff | null> {
-    return this.dataSource.login(username, password);
+    return this.dataSource.getByUsername(username);
   }
 
   async create(staff: Omit<Staff, "staffId">): Promise<Staff> {
-    return this.dataSource.createStaff(staff);
+    return this.dataSource.create(staff);
   }
 
   async update(staff: Staff): Promise<Staff> {
-    return this.dataSource.updateStaff(staff);
+    return this.dataSource.update(staff);
   }
 }
 

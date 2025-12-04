@@ -15,7 +15,7 @@ import { LoginUseCase } from "~/application/use-cases/staff/LoginUseCase";
 import { GetStaffListUseCase } from "~/application/use-cases/staff/GetStaffListUseCase";
 import { GetStaffByUsernameUseCase } from "~/application/use-cases/staff/GetStaffByUsernameUseCase";
 import { UpdateStaffUseCase } from "~/application/use-cases/staff/UpdateStaffUseCase";
-import { DeleteStaffUseCase } from "~/application/use-cases/staff/DeleteStaffUsecase";
+import { DeleteStaffUseCase } from "~/application/use-cases/staff/DeleteStaffUseCase";
 
 // Initialize repositories based on datasource configuration
 let patientRepository: IPatientRepository;

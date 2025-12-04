@@ -1,6 +1,9 @@
 import { useNavigate } from "@remix-run/react";
 import React, { useState, ChangeEvent, FormEvent, useEffect } from "react";
 import { useAddStaff } from "~/presentation/hooks/staff/useAddStaff";
+import { getUserSession } from "~/presentation/session/userSession";
+import ErrorPage from "./components/common/ErrorPage";
+import LoadingPage from "./components/common/LoadingPage";
 
 function SignUp() {
   const navigate = useNavigate();
@@ -18,6 +21,23 @@ function SignUp() {
 
   const { addStaff, loading, error: hookError } = useAddStaff();
   const [error, setError] = useState<string>("");
+  const [isSessionLoaded, setIsSessionLoaded] = useState<boolean>(false);
+  const [isManager, setIsManager] = useState<boolean>(false);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+
+  useEffect(() => {
+    const session = getUserSession();
+    if (!session) {
+      setIsLoggedIn(false);
+      setIsManager(false);
+      setIsSessionLoaded(true);
+      return;
+    }
+
+    setIsLoggedIn(true);
+    setIsManager(session.role?.toLowerCase() === "manager");
+    setIsSessionLoaded(true);
+  }, []);
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -59,6 +79,43 @@ function SignUp() {
 
     return true;
   };
+
+  // While we haven't loaded the session on the client yet, keep UI consistent
+  if (!isSessionLoaded) {
+    return <LoadingPage />;
+  }
+
+  // If user is not logged in, show access denied page without sidebar
+  if (!isLoggedIn) {
+    const handleGoBack = () => {
+      window.history.back();
+    };
+
+    return (
+      <div className="page-background" style={{ backgroundColor: "#DCE8E9", width: "100%", minHeight: "100vh", padding: "50px", boxSizing: "border-box", display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <ErrorPage
+          message="You don't have access to this page."
+          onRetry={handleGoBack}
+        />
+      </div>
+    );
+  }
+
+  // If user is not a manager, block access with error page without sidebar
+  if (!isManager) {
+    const handleGoBack = () => {
+      window.history.back();
+    };
+
+    return (
+      <div className="page-background" style={{ backgroundColor: "#DCE8E9", width: "100%", minHeight: "100vh", padding: "50px", boxSizing: "border-box", display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <ErrorPage
+          message="You don't have access to this page."
+          onRetry={handleGoBack}
+        />
+      </div>
+    );
+  }
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();

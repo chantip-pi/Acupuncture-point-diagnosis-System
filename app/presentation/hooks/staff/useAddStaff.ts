@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { addStaffUseCase } from "~/infrastructure/di/container";
 import { CreateStaffDTO } from "~/application/dtos/StaffDTO";
+import bcrypt from "bcryptjs";
 
 export function useAddStaff() {
   const [loading, setLoading] = useState(false);
@@ -11,10 +12,17 @@ export function useAddStaff() {
     setError(null);
 
     try {
-      await addStaffUseCase.execute(dto);
+      // Hash password before sending to the backend
+      const hashedPassword = await bcrypt.hash(dto.password, 10);
+
+      await addStaffUseCase.execute({
+        ...dto,
+        password: hashedPassword,
+      });
       return { success: true };
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to add Staff";
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to add Staff";
       setError(errorMessage);
       return { success: false, error: errorMessage };
     } finally {

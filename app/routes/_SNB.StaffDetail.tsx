@@ -2,25 +2,37 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useGetStaffByUsername } from "~/presentation/hooks/staff/useGetStaffByUsername";
 import { getUserSession } from "~/presentation/session/userSession";
 import { getSelectedStaffUsername } from "~/presentation/session/staffSelectionSession";
+import ErrorPage from "./components/common/ErrorPage";
+import LoadingPage from "./components/common/LoadingPage";
 
 function StaffDetail() {
   const [username, setUsername] = useState<string | null>(null);
   const [sessionError, setSessionError] = useState<string | null>(null);
+  const [isSessionLoaded, setIsSessionLoaded] = useState<boolean>(false);
+  const [isManager, setIsManager] = useState<boolean>(false);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
   useEffect(() => {
-    const selectedUsername = getSelectedStaffUsername();
-    if (selectedUsername) {
-      setUsername(selectedUsername);
-      return;
-    }
-
     const session = getUserSession();
     if (!session) {
+      setIsLoggedIn(false);
+      setIsManager(false);
+      setIsSessionLoaded(true);
       setSessionError("No user information found. Please log in again.");
       return;
     }
 
-    setUsername(session.username);
+    setIsLoggedIn(true);
+    setIsManager(session.role?.toLowerCase() === "manager");
+
+    const selectedUsername = getSelectedStaffUsername();
+    if (selectedUsername) {
+      setUsername(selectedUsername);
+    } else {
+      setUsername(session.username);
+    }
+    
+    setIsSessionLoaded(true);
   }, []);
 
   const { staff, loading, error } = useGetStaffByUsername(username);
@@ -30,6 +42,43 @@ function StaffDetail() {
     if (!staff) return "";
     return calculateAge(staff.birthday);
   }, [staff]);
+
+  // While we haven't loaded the session on the client yet, keep UI consistent
+  if (!isSessionLoaded) {
+    return <LoadingPage />;
+  }
+
+  // If user is not logged in, show access denied page without sidebar
+  if (!isLoggedIn) {
+    const handleGoBack = () => {
+      window.history.back();
+    };
+
+    return (
+      <div className="page-background" style={{ backgroundColor: "#DCE8E9", width: "100%", minHeight: "100vh", padding: "50px", boxSizing: "border-box", display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <ErrorPage
+          message="You don't have access to this page."
+          onRetry={handleGoBack}
+        />
+      </div>
+    );
+  }
+
+  // If user is not a manager, block access with error page without sidebar
+  if (!isManager) {
+    const handleGoBack = () => {
+      window.history.back();
+    };
+
+    return (
+      <div className="page-background" style={{ backgroundColor: "#DCE8E9", width: "100%", minHeight: "100vh", padding: "50px", boxSizing: "border-box", display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <ErrorPage
+          message="You don't have access to this page."
+          onRetry={handleGoBack}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-row justify-center items-start w-[60svw] pt-10 pb-7">

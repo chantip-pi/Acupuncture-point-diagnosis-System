@@ -1,31 +1,35 @@
-import { useState } from "react";
-import { useNavigate } from "@remix-run/react";
+import { Form, useNavigate } from "@remix-run/react";
+import * as React from "react";
 import { useLogin } from "~/presentation/hooks/useLogin";
 
 function LogIn() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const { login, loading, error: authError } = useLogin();
-  const [formError, setFormError] = useState("");
-
   const navigate = useNavigate();
+  const { login, loading, error } = useLogin();
+  const [formError, setFormError] = React.useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
+    setFormError(null);
+
+    const formData = new FormData(e.currentTarget);
+    const username = String(formData.get("username") ?? "").trim();
+    const password = String(formData.get("password") ?? "").trim();
 
     if (!username || !password) {
-      setFormError("Please fill in all fields.");
+      setFormError("Username and password are required.");
       return;
     }
 
-    setFormError("");
-    const userSession = await login({ username, password });
+    const session = await login({ username, password });
 
-    if (userSession) {
-      navigate("/home");
-    } else {
-      setFormError(authError || "Invalid username or password.");
+    if (!session) {
+      // `useLogin` already sets a human-friendly error message.
+      setFormError("Invalid username or password.");
+      return;
     }
+
+    // Login successful: go to home page
+    navigate("/home");
   };
 
   return (
@@ -37,7 +41,7 @@ function LogIn() {
             <div className="w-full h-0.5 bg-black mb-2"></div>
             <h3>Chinese Medical Clinic</h3>
           </div>
-          <div>
+          <Form method="post" onSubmit={handleSubmit}>
             <div className="mb-4">
               <label htmlFor="username" className="block mb-1">
                 Username
@@ -45,8 +49,7 @@ function LogIn() {
               <input
                 type="text"
                 id="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                name="username"
                 className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
                 required
               />
@@ -58,23 +61,24 @@ function LogIn() {
               <input
                 type="password"
                 id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                name="password"
                 className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
                 required
               />
             </div>
-            {(formError.trim() || authError) && (
-              <p className="text-red-500">{formError.trim() || authError}</p>
+            {(formError || error) && (
+              <p className="text-red-500">
+                {formError ?? error}
+              </p>
             )}
             <button
-              onClick={handleSubmit}
-              disabled={loading}
               className="mt-10 py-2 px-3 bg-gradient-to-r from-[#2CD8] to-[#C5C1FF] text-white font-bold rounded-lg w-[70%] mx-auto block disabled:opacity-50"
+              type="submit"
+              disabled={loading}
             >
-              {loading ? "Logging in..." : "LOGIN"}
+              {loading ? "LOGGING IN..." : "LOGIN"}
             </button>
-          </div>
+          </Form>
         </div>
       </div>
     </div>

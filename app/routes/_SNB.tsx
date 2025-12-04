@@ -4,11 +4,14 @@ import { IoPersonAddSharp } from "react-icons/io5";
 import { FaUser, FaWrench } from 'react-icons/fa';
 import { RiExchange2Fill } from "react-icons/ri";
 import { Outlet, useNavigate } from '@remix-run/react';
+import { useRequireAuth } from "~/presentation/hooks/staff/useRequireAuth";
 import { FaClipboardList } from "react-icons/fa";
 import { clearUserSession, getUserSession } from "~/presentation/session/userSession";
 
 function SideNavBar() {
   const navigate = useNavigate(); // สร้างฟังก์ชันนำทาง
+  // enforce authentication for all pages rendered under this layout
+  useRequireAuth();
   const [currentUser, setCurrentUser] = React.useState('Guest');
   
   const handleLogOut = () => {

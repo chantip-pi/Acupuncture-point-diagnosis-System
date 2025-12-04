@@ -10,6 +10,7 @@ import { useDeleteStaff } from "~/presentation/hooks/staff/useDeleteStaff";
 import { Staff } from "~/domain/entities/Staff";
 import { getSelectedStaffUsername } from "~/presentation/session/staffSelectionSession";
 import { getStaffByUsernameUseCase } from "~/infrastructure/di/container";
+import { getUserSession } from "~/presentation/session/userSession";
 
 function EditStaff() {
   const navigate = useNavigate();
@@ -17,8 +18,21 @@ function EditStaff() {
   // Load selected username on the client after hydration to avoid SSR/CSR mismatch
   const [selectedUsername, setSelectedUsername] = useState<string | null>(null);
   const [isSessionLoaded, setIsSessionLoaded] = useState(false);
+  const [isManager, setIsManager] = useState<boolean>(false);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
   useEffect(() => {
+    const session = getUserSession();
+    if (!session) {
+      setIsLoggedIn(false);
+      setIsManager(false);
+      setIsSessionLoaded(true);
+      return;
+    }
+
+    setIsLoggedIn(true);
+    setIsManager(session.role?.toLowerCase() === "manager");
+    
     const username = getSelectedStaffUsername();
     setSelectedUsername(username);
     setIsSessionLoaded(true);
@@ -63,6 +77,38 @@ function EditStaff() {
   // While we haven't loaded the session on the client yet, keep UI consistent
   if (!isSessionLoaded) {
     return <LoadingPage />;
+  }
+
+  // If user is not logged in, show access denied page without sidebar
+  if (!isLoggedIn) {
+    const handleGoBack = () => {
+      window.history.back();
+    };
+
+    return (
+      <div className="page-background" style={{ backgroundColor: "#DCE8E9", width: "100%", minHeight: "100vh", padding: "50px", boxSizing: "border-box", display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <ErrorPage
+          message="You don't have access to this page."
+          onRetry={handleGoBack}
+        />
+      </div>
+    );
+  }
+
+  // If user is not a manager, block access with error page without sidebar
+  if (!isManager) {
+    const handleGoBack = () => {
+      window.history.back();
+    };
+
+    return (
+      <div className="page-background" style={{ backgroundColor: "#DCE8E9", width: "100%", minHeight: "100vh", padding: "50px", boxSizing: "border-box", display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <ErrorPage
+          message="You don't have access to this page."
+          onRetry={handleGoBack}
+        />
+      </div>
+    );
   }
 
   // If no staff is selected or user has no permission, block access

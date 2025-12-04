@@ -14,7 +14,9 @@ import LoadingPage from "./components/common/LoadingPage";
 const StaffListView: React.FC = () => {
   const { staffList, loading, error } = useGetStaffList();
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [isManager, setIsManager] = useState<boolean>(false);
+  const [hasCheckedSession, setHasCheckedSession] = useState<boolean>(false);
   const [currentUser, setCurrentUser] = useState<string>("Guest");
 
   const navigate = useNavigate();
@@ -38,13 +40,16 @@ const StaffListView: React.FC = () => {
   useEffect(() => {
     const session = getUserSession();
     if (!session) {
-      setCurrentUser("Guest");
+      setIsLoggedIn(false);
       setIsManager(false);
+      setHasCheckedSession(true);
       return;
     }
 
+    setIsLoggedIn(true);
     setCurrentUser(session.username);
     setIsManager(session.role?.toLowerCase() === "manager");
+    setHasCheckedSession(true);
   }, []);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -78,6 +83,23 @@ const StaffListView: React.FC = () => {
   };
 
   const handleEditStaff = (username: string) => {
+    if (!isManager) {
+    const handleGoBack = () => {
+      window.history.back();
+    };
+
+    return (
+      <div className="flex">
+        <SideNavBar />
+        <div className="page-background" style={mainContentStyle}>
+          <ErrorPage
+            message="You don't have access to this page."
+            onRetry={handleGoBack}
+          />
+        </div>
+      </div>
+    );
+  }
     ensureManager(() => {
       setSelectedStaffUsername(username);
       navigate("/editStaff");
@@ -85,6 +107,23 @@ const StaffListView: React.FC = () => {
   };
 
   const handleAddNewStaff = () => {
+    if (!isManager) {
+    const handleGoBack = () => {
+      window.history.back();
+    };
+
+    return (
+      <div className="flex">
+        <SideNavBar />
+        <div className="page-background" style={mainContentStyle}>
+          <ErrorPage
+            message="You don't have access to this page."
+            onRetry={handleGoBack}
+          />
+        </div>
+      </div>
+    );
+  }
     ensureManager(() => {
       navigate("/addStaff");
     });
@@ -94,6 +133,37 @@ const StaffListView: React.FC = () => {
     setSelectedStaffUsername(username);
     navigate("/staffDetail");
   };
+  // If we haven't checked the session yet, show loading
+  if (!hasCheckedSession) {
+    return (
+      <div className="flex">
+        <SideNavBar />
+        <div className="page-background" style={mainContentStyle}>
+          <LoadingPage />
+        </div>
+      </div>
+    );
+  }
+
+  // If user is not logged in at all, show a standalone access-denied page
+  if (!isLoggedIn) {
+    const handleGoBack = () => {
+      window.history.back();
+    };
+
+    return (
+      <div className="page-background" style={mainContentStyle}>
+        <ErrorPage
+          message="You don't have access to this page."
+          onRetry={handleGoBack}
+        />
+      </div>
+    );
+  }
+
+  // If user is not a manager, show an access-denied error page with a back button
+  
+
   return (
     <div className="flex">
       <SideNavBar />
@@ -106,14 +176,16 @@ const StaffListView: React.FC = () => {
             <h2 style={{ fontSize: "28px", color: "#2F919C" }}>
               Staff List View
             </h2>
-            <div style={addNewStaffButtonStyle} onClick={handleAddNewStaff}>
-              <div style={iconContainerStyle}>
-                <FontAwesomeIcon icon={faUserPlus} style={{ color: "#000" }} />
+            {isManager && (
+              <div style={addNewStaffButtonStyle} onClick={handleAddNewStaff}>
+                <div style={iconContainerStyle}>
+                  <FontAwesomeIcon icon={faUserPlus} style={{ color: "#000" }} />
+                </div>
+                <span style={{ color: "#000000", fontSize: "16px" }}>
+                  Add new Staff
+                </span>
               </div>
-              <span style={{ color: "#000000", fontSize: "16px" }}>
-                Add new Staff
-              </span>
-            </div>
+            )}
           </div>
 
           <div className="search-bar" style={searchBarStyle}>
@@ -137,7 +209,7 @@ const StaffListView: React.FC = () => {
                   <th style={thTdStyle}>Gender</th>
                   <th style={thTdStyle}>Role</th>
                   <th style={thTdStyle}>Email</th>
-                  <th style={thTdStyle}></th>
+                  {isManager && <th style={thTdStyle}></th>}
                 </tr>
               </thead>
               <tbody>
@@ -191,18 +263,20 @@ const StaffListView: React.FC = () => {
                     >
                       {staff.email}
                     </td>
-                    <td style={thTdStyle}>
-                      <a
-                        onClick={() => handleEditStaff(staff.username)}
-                        style={{
-                          color: "#2F919C",
-                          cursor: "pointer",
-                          textDecoration: "underline",
-                        }}
-                      >
-                        Edit
-                      </a>
-                    </td>
+                    {isManager && (
+                      <td style={thTdStyle}>
+                        <a
+                          onClick={() => handleEditStaff(staff.username)}
+                          style={{
+                            color: "#2F919C",
+                            cursor: "pointer",
+                            textDecoration: "underline",
+                          }}
+                        >
+                          Edit
+                        </a>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>

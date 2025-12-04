@@ -21,7 +21,8 @@ export class StaffRepository implements IStaffRepository {
   }
 
   async login(username: string, password: string): Promise<Staff | null> {
-    return this.dataSource.getByUsername(username);
+    return this.dataSource.login(username,password);
+
   }
 
   async create(staff: Omit<Staff, "staffId">): Promise<Staff> {

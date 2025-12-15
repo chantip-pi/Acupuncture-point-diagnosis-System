@@ -94,16 +94,6 @@ function EditPatient() {
               handleSave();
             }}
           >
-            <FormField label="Patient ID">
-              <Input
-                type="text"
-                id="patientId"
-                name="patientId"
-                value={formData.patientId || ""}
-                onChange={handleChange}
-                readOnly
-              />
-            </FormField>
 
             <FormField label="Name">
               <Input

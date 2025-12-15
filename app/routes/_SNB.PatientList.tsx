@@ -15,6 +15,8 @@ import { useGetPatientList } from "~/presentation/hooks/patient/useGetPatientLis
 import { Patient } from "~/domain/entities/Patient";
 import { DateTimeHelper } from "~/domain/value-objects/DateOfBirth";
 import { DateOfBirth } from "~/domain/value-objects/DateOfBirth";
+import ErrorPage from "./components/common/ErrorPage";
+import LoadingPage from "./components/common/LoadingPage";
 
 const PatientList: React.FC = () => {
   const navigate = useNavigate();
@@ -46,8 +48,20 @@ const PatientList: React.FC = () => {
     );
   }, [patientList, searchTerm]);
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>{error}</p>;
+  if (loading) {
+    return <LoadingPage />;
+  }
+
+  if (error) {
+    return (
+      <ErrorPage message={error} onRetry={() => window.location.reload()} />
+    );
+  }
+  if (!patientList) {
+    return (
+      <ErrorPage message={"No patient data found"} onRetry={() => window.location.reload()} />
+    );
+  };
 
   return (
     <div className="flex min-h-screen bg-surface-muted">

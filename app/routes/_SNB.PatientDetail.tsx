@@ -10,6 +10,10 @@ import {
 import { useGetPatientById } from "~/presentation/hooks/patient/useGetPatientById";
 import { Patient } from "~/domain/entities/Patient";
 import { DateTimeHelper } from "~/domain/value-objects/DateOfBirth";
+import ErrorPage from "./components/common/ErrorPage";
+import LoadingPage from "./components/common/LoadingPage";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPenToSquare } from "@fortawesome/free-solid-svg-icons/faPenToSquare";
 
 function PatientDetail() {
   const navigate = useNavigate();
@@ -32,13 +36,24 @@ function PatientDetail() {
     navigate("/select-treatment");
   };
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>{error}</p>;
-  if (!patientData) return <p>No patient data found</p>;
+  if (loading) {
+    return <LoadingPage />;
+  }
+
+  if (error) {
+    return (
+      <ErrorPage message={error} onRetry={() => window.location.reload()} />
+    );
+  }
+  if (!patientData) {
+    return (
+      <ErrorPage message={"No patient data found"} onRetry={() => window.location.reload()} />
+    );
+  };
 
   return (
     <div className="flex min-h-screen bg-surface-muted">
-  
+
       <main className="flex-1 p-8">
         <Card>
           <div className="flex items-center justify-between">
@@ -49,20 +64,10 @@ function PatientDetail() {
                 size="sm"
                 onClick={() => handleEdit(patientData.patientId)}
               >
-                Edit Patient
-              </Button>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => {
-                  sessionStorage.setItem(
-                    "currentPatientID",
-                    JSON.stringify(patientData.patientId)
-                  );
-                  navigate("/medicalRecord");
-                }}
-              >
-                Medical History
+                 <span className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-100 text-amber-800">
+                  <FontAwesomeIcon icon={faPenToSquare} />
+                </span>
+                Edit
               </Button>
             </div>
           </div>
@@ -74,10 +79,10 @@ function PatientDetail() {
                 { label: "Patient ID", value: String(patientData.patientId || "N/A") },
                 {
                   label: "Upcoming Appointment",
-                  value:  DateTimeHelper.formatDateTime(patientData.birthday)
-                    
+                  value: DateTimeHelper.formatDateTime(patientData.birthday)
+
                 },
-                
+
                 { label: "Gender", value: patientData.gender || "N/A" },
                 {
                   label: "Age",
@@ -92,15 +97,6 @@ function PatientDetail() {
                 },
               ]}
             />
-          </div>
-
-          <div className="mt-6 flex justify-end">
-            <Button
-              variant="primary"
-              onClick={() => handleTreatmentSelect(patientData.patientId)}
-            >
-              Select Treatment
-            </Button>
           </div>
         </Card>
       </main>

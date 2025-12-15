@@ -73,12 +73,6 @@ const StaffListView: React.FC = () => {
     action();
   };
 
-  const handleEditStaff = (username: string) => {
-    ensureManager(() => {
-      setSelectedStaffUsername(username);
-      navigate("/editStaff");
-    });
-  };
 
   const handleAddNewStaff = () => {
     ensureManager(() => {
@@ -220,20 +214,6 @@ const StaffListView: React.FC = () => {
                   >
                     {staff.email}
                   </td>
-                  {isManager && (
-                    <td className="px-4 py-3 text-md">
-                      <Button
-                        variant="primary"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEditStaff(staff.username);
-                        }}
-                      >
-                        Edit
-                      </Button>
-                    </td>
-                  )}
                 </tr>
               ))}
             </Table>

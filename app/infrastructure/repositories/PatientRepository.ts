@@ -2,11 +2,8 @@ import { IPatientRepository } from "~/domain/repositories/IPatientRepository";
 import { Patient } from "~/domain/entities/Patient";
 import { MockDataSource } from "../datasource/MockDataSource";
 
-/**
- * Mock implementation of PatientRepository using in-memory datasource.
- * This can be easily swapped with the real PatientRepository.
- */
-export class MockPatientRepository implements IPatientRepository {
+
+export class PatientRepository implements IPatientRepository {
   constructor(private readonly dataSource: MockDataSource) {}
 
   async getAll(): Promise<Patient[]> {
@@ -17,9 +14,6 @@ export class MockPatientRepository implements IPatientRepository {
     return this.dataSource.getPatientById(id);
   }
 
-  async getByAppointmentDate(date: string): Promise<Patient[]> {
-    return this.dataSource.getPatientsByAppointmentDate(date);
-  }
 
   async create(patient: Omit<Patient, "patientId">): Promise<Patient> {
     return this.dataSource.createPatient(patient);
@@ -28,5 +22,6 @@ export class MockPatientRepository implements IPatientRepository {
   async update(patient: Patient): Promise<Patient> {
     return this.dataSource.updatePatient(patient);
   }
+
 }
 

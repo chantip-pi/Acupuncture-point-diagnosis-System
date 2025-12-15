@@ -13,6 +13,7 @@ import {
 } from "~/presentation/designSystem";
 import { useGetPatientList } from "~/presentation/hooks/patient/useGetPatientList";
 import { Patient } from "~/domain/entities/Patient";
+import { DateTimeHelper } from "~/domain/value-objects/DateOfBirth";
 import { DateOfBirth } from "~/domain/value-objects/DateOfBirth";
 
 const PatientList: React.FC = () => {
@@ -101,15 +102,16 @@ const PatientList: React.FC = () => {
                 <td className="px-4 py-3 text-md text-slate-900">{patient.nameSurname}</td>
                 <td className="px-4 py-3 text-md text-slate-900">{patient.phoneNumber}</td>
                 <td className="px-4 py-3 text-md text-slate-900">
-                  { DateOfBirth.create(patient.birthday).calculateAge()}
+                  {DateTimeHelper.calculateAge(patient.birthday)}
                 </td>
                 <td className="px-4 py-3 text-md text-slate-900">{patient.gender}</td>
+               
                 <td className="px-4 py-3 text-md text-slate-900">
-                  {patient.appointmentDate
-                    ? format(new Date(patient.appointmentDate), "dd/MM/yyyy kk:mm")
-                    : "N/A"}
+                   {/* TODO: replace with upcoming appointment datetime */}
+                  {DateTimeHelper.formatDateTime(patient.birthday)
+                    }
                 </td>
-                <td className="px-4 py-3 text-md text-slate-900">{patient.courseCount}</td>
+                <td className="px-4 py-3 text-md text-slate-900">{patient.remainingCourse}</td>
                 <td className="px-4 py-3">
                   <Button
                     size="sm"

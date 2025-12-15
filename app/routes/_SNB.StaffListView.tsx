@@ -11,6 +11,7 @@ import {
   SectionHeading,
   Table,
 } from "~/presentation/designSystem";
+import { DateTimeHelper } from "~/domain/value-objects/DateOfBirth";
 import { useGetStaffList } from "~/presentation/hooks/staff/useGetStaffList";
 import { Staff } from "~/domain/entities/Staff";
 import { getUserSession } from "~/presentation/session/userSession";
@@ -199,7 +200,7 @@ const StaffListView: React.FC = () => {
                     className="px-4 py-3 text-md text-slate-900"
                     onClick={() => handleClickList(staff.username)}
                   >
-                    {DateOfBirth.create(staff.birthday).calculateAge()}
+                    {DateTimeHelper.calculateAge(staff.birthday)}
                   </td>
                   <td
                     className="px-4 py-3 text-md text-slate-900"

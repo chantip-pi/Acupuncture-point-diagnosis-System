@@ -9,7 +9,7 @@ import {
 } from "~/presentation/designSystem";
 import { useGetPatientById } from "~/presentation/hooks/patient/useGetPatientById";
 import { Patient } from "~/domain/entities/Patient";
-import { DateOfBirth } from "~/domain/value-objects/DateOfBirth";
+import { DateTimeHelper } from "~/domain/value-objects/DateOfBirth";
 
 function PatientDetail() {
   const navigate = useNavigate();
@@ -73,24 +73,22 @@ function PatientDetail() {
                 { label: "Full Name", value: patientData.nameSurname || "N/A" },
                 { label: "Patient ID", value: String(patientData.patientId || "N/A") },
                 {
-                  label: "Appointment Date",
-                  value: patientData.appointmentDate
-                    ? formatDate(new Date(patientData.appointmentDate).getTime())
-                    : "N/A",
+                  label: "Upcoming Appointment Date",
+                  value: formatDate(new Date().getDate())
+                    
                 },
-                {
-                  label: "First Visit Date",
-                  value: formatDate(new Date(patientData.firstVistDate).getTime()),
-                },
+                
                 { label: "Gender", value: patientData.gender || "N/A" },
                 {
                   label: "Age",
-                  value: patientData ? DateOfBirth.create(patientData.birthday).calculateAge() : "N/A",
+                  value: patientData
+                    ? DateTimeHelper.calculateAge(patientData.birthday)
+                    : "N/A",
                 },
                 { label: "Tel", value: patientData.phoneNumber || "N/A" },
                 {
                   label: "Course Count",
-                  value: String(patientData.courseCount || "0"),
+                  value: String(patientData.remainingCourse || "0"),
                 },
               ]}
             />

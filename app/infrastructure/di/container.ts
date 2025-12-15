@@ -1,7 +1,7 @@
 
 import { IPatientRepository } from "~/domain/repositories/IPatientRepository";
 import { IStaffRepository } from "~/domain/repositories/IStaffRepository";
-import { MockPatientRepository } from "../repositories/MockPatientRepository";
+import { PatientRepository } from "../repositories/PatientRepository";
 import { StaffRepository } from "../repositories/StaffRepository";
 import { MockDataSource } from "../datasource/MockDataSource";
 import { StaffDataSource } from "../datasource/StaffDataSource";
@@ -23,7 +23,7 @@ let staffRepository: IStaffRepository;
 
 const mockDataSource = MockDataSource.getInstance();
 const staffDataSource = new StaffDataSource();
-patientRepository = new MockPatientRepository(mockDataSource);
+patientRepository = new PatientRepository(mockDataSource);
 staffRepository = new StaffRepository(staffDataSource);
 
 // Use Cases

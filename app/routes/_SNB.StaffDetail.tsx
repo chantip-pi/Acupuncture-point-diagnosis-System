@@ -10,7 +10,7 @@ import { getUserSession } from "~/presentation/session/userSession";
 import { getSelectedStaffUsername } from "~/presentation/session/staffSelectionSession";
 import ErrorPage from "./components/common/ErrorPage";
 import LoadingPage from "./components/common/LoadingPage";
-import { DateOfBirth } from "~/domain/value-objects/DateOfBirth";
+import { DateTimeHelper } from "~/domain/value-objects/DateOfBirth";
 
 function StaffDetail() {
   const [username, setUsername] = useState<string | null>(null);
@@ -47,8 +47,7 @@ function StaffDetail() {
 
   const age = useMemo(() => {
     if (!staff) return "";
-    return DateOfBirth.create(staff.birthday).calculateAge()
-
+    return String(DateTimeHelper.calculateAge(staff.birthday));
   }, [staff]);
 
   // While we haven't loaded the session on the client yet, keep UI consistent

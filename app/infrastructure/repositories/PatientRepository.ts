@@ -1,27 +1,32 @@
 import { IPatientRepository } from "~/domain/repositories/IPatientRepository";
 import { Patient } from "~/domain/entities/Patient";
-import { MockDataSource } from "../datasource/MockDataSource";
+import { PatientDataSource } from "~/infrastructure/datasource/PatientDataSource"
 
 
 export class PatientRepository implements IPatientRepository {
-  constructor(private readonly dataSource: MockDataSource) {}
+  constructor(private readonly dataSource: PatientDataSource) {}
+
 
   async getAll(): Promise<Patient[]> {
-    return this.dataSource.getAllPatients();
+    return this.dataSource.getAll();
   }
 
   async getById(id: number): Promise<Patient | null> {
-    return this.dataSource.getPatientById(id);
+    return this.dataSource.getById(id);
   }
 
 
   async create(patient: Omit<Patient, "patientId">): Promise<Patient> {
-    return this.dataSource.createPatient(patient);
+    return this.dataSource.create(patient);
   }
 
   async update(patient: Patient): Promise<Patient> {
-    return this.dataSource.updatePatient(patient);
+    return this.dataSource.update(patient);
   }
 
+
+  async delete(patientId: number): Promise<void> {
+    return this.dataSource.delete(patientId);
+  }
 }
 

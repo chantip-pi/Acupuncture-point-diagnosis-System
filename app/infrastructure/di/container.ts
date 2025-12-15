@@ -10,20 +10,21 @@ import { AddStaffUseCase } from "~/application/use-cases/staff/AddStaffUseCase";
 import { GetPatientListUseCase } from "~/application/use-cases/patient/GetPatientListUseCase";
 import { GetPatientByIdUseCase } from "~/application/use-cases/patient/GetPatientByIdUseCase";
 import { UpdatePatientUseCase } from "~/application/use-cases/patient/UpdatePatientUseCase";
-import { GetPatientsByAppointmentDateUseCase } from "~/application/use-cases/patient/GetPatientsByAppointmentDateUseCase";
 import { LoginUseCase } from "~/application/use-cases/staff/LoginUseCase";
 import { GetStaffListUseCase } from "~/application/use-cases/staff/GetStaffListUseCase";
 import { GetStaffByUsernameUseCase } from "~/application/use-cases/staff/GetStaffByUsernameUseCase";
 import { UpdateStaffUseCase } from "~/application/use-cases/staff/UpdateStaffUseCase";
 import { DeleteStaffUseCase } from "~/application/use-cases/staff/DeleteStaffUseCase";
-
+import { PatientDataSource } from "../datasource/PatientDataSource";
 // Initialize repositories based on datasource configuration
 let patientRepository: IPatientRepository;
 let staffRepository: IStaffRepository;
 
 const mockDataSource = MockDataSource.getInstance();
 const staffDataSource = new StaffDataSource();
-patientRepository = new PatientRepository(mockDataSource);
+const patientDatasource = new PatientDataSource();
+
+patientRepository = new PatientRepository(patientDatasource);
 staffRepository = new StaffRepository(staffDataSource);
 
 // Use Cases
@@ -32,7 +33,6 @@ export const getPatientListUseCase = new GetPatientListUseCase(patientRepository
 export const getPatientByIdUseCase = new GetPatientByIdUseCase(patientRepository);
 export const updatePatientUseCase = new UpdatePatientUseCase(patientRepository);
 
-export const getPatientsByAppointmentDateUseCase = new GetPatientsByAppointmentDateUseCase(patientRepository);
 
 export const loginUseCase = new LoginUseCase(staffRepository);
 export const getStaffListUseCase = new GetStaffListUseCase(staffRepository);

@@ -93,7 +93,7 @@ const Home: React.FC = () => {
                         : "N/A"}
                     </td>
                     <td className="px-4 py-3 text-md text-slate-900">
-                      {patient.courseCount}
+                      {patient.remainingCourse}
                     </td>
                   </tr>
                 ))}

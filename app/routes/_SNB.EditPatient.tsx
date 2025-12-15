@@ -12,6 +12,8 @@ import {
 import { useGetPatientById } from "~/presentation/hooks/patient/useGetPatientById";
 import { useUpdatePatient } from "~/presentation/hooks/patient/useUpdatePatient";
 import { Patient } from "~/domain/entities/Patient";
+import ErrorPage from "./components/common/ErrorPage";
+import LoadingPage from "./components/common/LoadingPage";
 
 
 
@@ -39,23 +41,12 @@ function EditPatient() {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    const newValue = name === "courseCount" ? parseInt(value, 10) : value;
+    const newValue = name === "remainingCourse" ? parseInt(value, 10) : value;
 
-    if (name === "appointmentDate") {
-      const dateValue = value ? new Date(value).toISOString() : null;
-      setFormData((prev) => ({ ...prev, [name]: dateValue }));
-      setLocalError(null);
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: newValue }));
-    }
+    
   };
 
   const handleSave = async () => {
-    if (!formData.appointmentDate) {
-      setLocalError("Please select an appointment date.");
-      return;
-    }
-
     setLocalError(null);
 
     const result = await updatePatient({
@@ -64,9 +55,7 @@ function EditPatient() {
       phoneNumber: formData.phoneNumber || "",
       birthday: formData.birthday || "",
       gender: formData.gender || "",
-      appointmentDate: formData.appointmentDate || null,
-      courseCount: formData.courseCount || 0,
-      firstVistDate: formData.firstVistDate || "",
+      remainingCourse: formData.remainingCourse || 0,
     });
 
     if (result.success) {
@@ -76,9 +65,20 @@ function EditPatient() {
     }
   };
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>{error}</p>;
-  if (!patientData) return <p>No patient data found</p>;
+  if (loading) {
+    return <LoadingPage />;
+  }
+
+  if (error) {
+    return (
+      <ErrorPage message={error} onRetry={() => window.location.reload()} />
+    );
+  }
+  if (!patientData) {
+    return (
+      <ErrorPage message={"No patient data found"} onRetry={() => window.location.reload()} />
+    );
+  };
 
   return (
     <div className="flex min-h-screen bg-surface-muted">
@@ -116,7 +116,7 @@ function EditPatient() {
               />
             </FormField>
 
-            <FormField label="Telephone">
+            <FormField label="Phone Number">
               <Input
                 type="tel"
                 id="phoneNumber"
@@ -156,26 +156,12 @@ function EditPatient() {
               </Select>
             </FormField>
 
-            <FormField label="Appointment Date & Time" message={localError || updateError || undefined}>
-              <Input
-                type="datetime-local"
-                id="appointmentDate"
-                name="appointmentDate"
-                value={
-                  formData.appointmentDate
-                    ? new Date(formData.appointmentDate).toISOString().slice(0, 16)
-                    : ""
-                }
-                onChange={handleChange}
-              />
-            </FormField>
-
-            <FormField label="Course Count">
+            <FormField label="Remaining Course">
               <Input
                 type="number"
-                id="courseCount"
-                name="courseCount"
-                value={formData.courseCount || ""}
+                id="remainingCourse"
+                name="remainingCourse"
+                value={formData.remainingCourse || ""}
                 onChange={handleChange}
                 required
               />

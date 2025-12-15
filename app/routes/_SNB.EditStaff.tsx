@@ -1,5 +1,14 @@
 import { useNavigate } from "@remix-run/react";
 import React, { useEffect, useState, FormEvent } from "react";
+import SideNavBar from "./_SNB";
+import {
+  Button,
+  Card,
+  FormField,
+  Input,
+  SectionHeading,
+  Select,
+} from "~/presentation/designSystem";
 import { useGetStaffByUsername } from "~/presentation/hooks/staff/useGetStaffByUsername";
 import ErrorPage from "./components/common/ErrorPage";
 import LoadingPage from "./components/common/LoadingPage";
@@ -246,29 +255,30 @@ function EditStaff() {
 
 
   return (
-    <div className="flex flex-col w-[70svw] bg-[#DCE8E9] min-h-screen">
-      <div className="flex justify-center items-center pt-12 pb-12">
-        <div className="p-6 border border-gray-300 rounded-3xl bg-white shadow-lg w-[50svw] flex flex-col">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-[#1FA1AF] text-2xl">Edit Staff</h1>
-            <span className="text-[#1FA1AF] text-2xl">
-              {formData.nameSurname}
-            </span>
-            <div className="flex justify-center">
-              <button
+    <div className="flex min-h-screen bg-surface-muted">
+      <main className="flex-1 p-8">
+        <Card className="max-w-3xl">
+          <div className="flex items-center justify-between">
+            <SectionHeading title="Edit Staff" />
+            <div className="flex items-center gap-3">
+              <span className="text-brand text-lg font-semibold">
+                {formData.nameSurname}
+              </span>
+              <Button
                 type="button"
-                className="py-2 px-4 bg-[#FF0000] text-white rounded-3xl hover:bg-red-700"
+                variant="danger"
+                size="sm"
                 disabled={updateLoading || deleteLoading}
                 onClick={() => setShowDialog(true)}
               >
                 Delete
-              </button>
+              </Button>
             </div>
           </div>
 
           <ConfirmDialog
             isOpen={showDialog}
-         title={`Delete ${formData.nameSurname}`}
+            title={`Delete ${formData.nameSurname}`}
             message="Do you really want to delete this user?"
             cancelText="Cancel"
             isLoading={updateLoading}
@@ -276,133 +286,111 @@ function EditStaff() {
             onCancel={() => setShowDialog(false)}
           />
 
-
-          <form onSubmit={handleSubmit} className="flex flex-col flex-grow">
-            <div className="mb-4">
-              <label htmlFor="username" className="block mb-1">
-                Username:
-              </label>
-              <input
+          <form
+            onSubmit={handleSubmit}
+            className="grid grid-cols-1 gap-4 sm:grid-cols-2"
+          >
+            <FormField label="Username">
+              <Input
                 type="text"
                 id="username"
                 name="username"
                 value={formData.username}
                 onChange={handleChange}
-                className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
                 required
               />
-            </div>
+            </FormField>
 
-            <div className="mb-4">
-              <label htmlFor="nameSurname" className="block mb-1">
-                Name:
-              </label>
-              <input
+            <FormField label="Name">
+              <Input
                 type="text"
                 id="nameSurname"
                 name="nameSurname"
                 value={formData.nameSurname}
                 onChange={handleChange}
-                className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
                 required
               />
-            </div>
+            </FormField>
 
-            <div className="mb-4">
-              <label htmlFor="phoneNumber" className="block mb-1">
-                Telephone:
-              </label>
-              <input
-                type="string"
+            <FormField label="Telephone">
+              <Input
+                type="text"
                 id="phoneNumber"
                 name="phoneNumber"
                 value={formData.phoneNumber}
                 onChange={handleChange}
-                className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
                 required
               />
-            </div>
+            </FormField>
 
-            <div className="mb-4">
-              <label htmlFor="birthday" className="block mb-1">
-                Birthday:
-              </label>
-              <input
+            <FormField label="Birthday">
+              <Input
                 type="date"
                 id="birthday"
                 name="birthday"
                 value={formData.birthday}
                 onChange={handleChange}
-                className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
                 required
               />
-            </div>
+            </FormField>
 
-            <div className="mb-4">
-              <label htmlFor="gender" className="block mb-1">
-                Gender:
-              </label>
-              <select
+            <FormField label="Gender">
+              <Select
                 id="gender"
                 name="gender"
                 value={formData.gender}
                 onChange={handleChange}
-                className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
                 required
               >
                 <option value="">Select Gender</option>
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
-              </select>
-            </div>
+              </Select>
+            </FormField>
 
-            <div className="mb-4">
-              <label htmlFor="role" className="block mb-1">
-                Role:
-              </label>
-              <select
+            <FormField label="Role">
+              <Select
                 id="role"
                 name="role"
                 value={formData.role}
                 onChange={handleChange}
-                className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
                 required
               >
                 <option value="">Select Role</option>
                 <option value="Staff">Staff</option>
                 <option value="Doctor">Doctor</option>
-              </select>
-            </div>
+              </Select>
+            </FormField>
 
-            <div className="mb-4">
-              <label htmlFor="email" className="block mb-1">
-                Email:
-              </label>
-              <input
+            <FormField label="Email">
+              <Input
                 type="email"
                 id="email"
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
                 required
               />
-            </div>
+            </FormField>
 
-            {(formError || updateError) && <p className="text-red-500 mb-4">{formError || updateError}</p>}
+            {(formError || updateError) && (
+              <p className="text-md text-red-600 sm:col-span-2">
+                {formError || updateError}
+              </p>
+            )}
 
-            <div className="flex justify-center mt-auto">
-              <button
+            <div className="sm:col-span-2 flex justify-end">
+              <Button
                 type="submit"
-                className="w-1/2 py-2 px-4 bg-[#1FA1AF] text-white rounded-3xl"
+                variant="primary"
                 disabled={updateLoading}
               >
                 {updateLoading ? "Saving..." : "Save Changes"}
-              </button>
+              </Button>
             </div>
           </form>
-        </div>
-      </div>
+        </Card>
+      </main>
     </div>
   );
 }

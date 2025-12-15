@@ -80,7 +80,7 @@ const Equipment: React.FC = () => {
 
   return (
     <div className="flex">
-      <SideNavBar />
+  
       <div style={styles.container}>
         <div style={styles.card}>
           <div style={styles.header}>

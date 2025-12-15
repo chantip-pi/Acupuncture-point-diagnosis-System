@@ -1,19 +1,30 @@
-import React from 'react';
+import React from "react";
 import { IoMdHome } from "react-icons/io";
 import { IoPersonAddSharp } from "react-icons/io5";
-import { FaUser, FaWrench } from 'react-icons/fa';
+import { FaUser, FaWrench } from "react-icons/fa";
 import { RiExchange2Fill } from "react-icons/ri";
-import { Outlet, useNavigate } from '@remix-run/react';
+import { Outlet, useNavigate } from "@remix-run/react";
 import { useRequireAuth } from "~/presentation/hooks/staff/useRequireAuth";
 import { FaClipboardList } from "react-icons/fa";
-import { clearUserSession, getUserSession } from "~/presentation/session/userSession";
+import {
+  clearUserSession,
+  getUserSession,
+} from "~/presentation/session/userSession";
+
+const navItems = [
+  { label: "Home", icon: <IoMdHome size={22} />, to: "/home" },
+  { label: "Staff List", icon: <FaUser size={18} />, to: "/staffListView" },
+  { label: "Add Patient", icon: <IoPersonAddSharp size={18} />, to: "/addPatient" },
+  { label: "Income / Expenses", icon: <RiExchange2Fill size={20} />, to: "/incomeExpenses" },
+  { label: "Equipment", icon: <FaWrench size={18} />, to: "/equipment" },
+  { label: "Medical Record", icon: <FaClipboardList size={20} />, to: "/medicalRecord" },
+];
 
 function SideNavBar() {
-  const navigate = useNavigate(); // สร้างฟังก์ชันนำทาง
-  // enforce authentication for all pages rendered under this layout
+  const navigate = useNavigate();
   useRequireAuth();
-  const [currentUser, setCurrentUser] = React.useState('Guest');
-  
+  const [currentUser, setCurrentUser] = React.useState("Guest");
+
   const handleLogOut = () => {
     clearUserSession();
     navigate("/logIn");
@@ -21,81 +32,51 @@ function SideNavBar() {
 
   React.useEffect(() => {
     const session = getUserSession();
-    setCurrentUser(session?.username ?? 'Guest');
+    setCurrentUser(session?.username ?? "Guest");
   }, []);
 
   return (
-    <div className='flex flex-row bg-[#DCE8E9]'>
-      <div className="h-auto w-[17.5rem] bg-[#2F919C] text-white flex flex-col justify-between text-center rounded-r-3xl">
-        {/* Title */}
-        <div className="p-6">
-          <h1 className="text-2xl">Clinic Application : {currentUser}</h1>
+    <div className="flex min-h-screen bg-surface-muted">
+      <aside
+        className="flex h-full min-h-screen w-72 flex-col justify-between bg-brand text-white"
+        style={{ boxShadow: "4px 0 20px rgba(0,0,0,0.1)" }}
+      >
+        <div className="px-6 py-8">
+          <p className="text-md uppercase tracking-widest text-white/80">Clinic Application</p>
+          <h1 className="mt-2 text-2xl font-semibold">{currentUser}</h1>
         </div>
 
-        {/* Navigation Items */}
-        <nav className="flex-grow px-6">
-          <ul className="space-y-8 flex flex-col justify-evenly [&>li:hover>div]:hover:bg-white [&>li:hover>div]:hover:text-[#1FA1AF] [&>li>div]:mb-3">
-            <li className="flex flex-col items-center pt-9">
-              <div className="bg-[#2F919C] text-white w-36 h-24 rounded-3xl flex flex-col items-center justify-center transition">
-                <IoMdHome size={26} className="mb-2" />
-                <button onClick={() => navigate("/home")} className="text-lg block">
-                  Home Menu
+        <nav className="flex-1 px-4">
+          <ul className="space-y-3">
+            {navItems.map((item) => (
+              <li key={item.to}>
+                <button
+                  onClick={() => navigate(item.to)}
+                  className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left font-semibold transition hover:bg-white hover:text-brand"
+                  style={{ backgroundColor: "transparent" }}
+                >
+                  <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/10">
+                    {item.icon}
+                  </span>
+                  <span>{item.label}</span>
                 </button>
-              </div>
-            </li>
-            <li className="flex flex-col items-center">
-              <div className="bg-[#2F919C] text-white w-36 h-24 rounded-3xl flex flex-col items-center justify-center transition">
-                <FaUser size={20} className="mb-2" />
-                <button onClick={() => navigate("/staffListView")} className="text-lg block">
-                  Staff List
-                </button>
-              </div>
-            </li>
-            <li className="flex flex-col items-center">
-              <div className="bg-[#2F919C] text-white w-36 h-24 rounded-3xl flex flex-col items-center justify-center transition">
-                <IoPersonAddSharp size={20} className="mb-2" />
-                <button onClick={() => navigate("/addPatient")} className="text-lg block">
-                  Add New Patient
-                </button>
-              </div>
-            </li>
-            <li className="flex flex-col items-center">
-              <div 
-                className="bg-[#2F919C] text-white w-36 h-24 rounded-3xl flex flex-col items-center justify-center transition cursor-pointer" 
-                onClick={() => navigate("/incomeExpenses")}
-              >
-                <RiExchange2Fill size={24} className="mb-2" />
-                <span className="text-lg block">Income Expenses</span>
-              </div>
-            </li>
-            <li className="flex flex-col items-center">
-              <div className="bg-[#2F919C] text-white w-36 h-24 rounded-3xl flex flex-col items-center justify-center transition">
-                <FaWrench size={20} className="mb-2" />
-                <button onClick={() => navigate("/equipment")} className="text-lg block">
-                  Equipment
-                </button>
-              </div>
-            </li>
-            <li className="flex flex-col items-center">
-              <div className="bg-[#2F919C] text-white w-36 h-24 rounded-3xl flex flex-col items-center justify-center transition">
-                <FaClipboardList size={23} className="mb-2"/>
-                <button onClick={() => navigate("/medicalRecord")} className="text-lg block">
-                  Medical Record
-                </button>
-              </div>
-            </li>
+              </li>
+            ))}
           </ul>
         </nav>
 
-        <div className="pt-12 pl-6 pr-6">
-          <button className="w-full py-2 bg-white rounded-lg text-[#1FA1AF]"
-          onClick={handleLogOut}>
-            LOG OUT
+        <div className="px-4 pb-8">
+          <button
+            className="w-full rounded-xl bg-white py-2 font-semibold text-brand hover:bg-white/90"
+            onClick={handleLogOut}
+          >
+            Log out
           </button>
         </div>
-        <div className="h-9"></div>
+      </aside>
+      <div className="flex-1">
+        <Outlet />
       </div>
-      <Outlet />
     </div>
   );
 }

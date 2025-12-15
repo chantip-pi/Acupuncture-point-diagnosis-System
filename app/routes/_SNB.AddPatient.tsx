@@ -69,7 +69,7 @@ function AddPatient() {
                 name="nameSurname"
                 value={formData.nameSurname}
                 onChange={handleChange}
-                className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
+                className="w-full py-2 px-3 bg-gray-300 text-md rounded-3xl"
                 required
               />
             </div>
@@ -84,7 +84,7 @@ function AddPatient() {
                 name="phoneNumber"
                 value={formData.phoneNumber}
                 onChange={handleChange}
-                className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
+                className="w-full py-2 px-3 bg-gray-300 text-md rounded-3xl"
                 required
               />
             </div>
@@ -99,7 +99,7 @@ function AddPatient() {
                 name="birthday"
                 value={formData.birthday}
                 onChange={handleChange}
-                className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
+                className="w-full py-2 px-3 bg-gray-300 text-md rounded-3xl"
                 required
               />
             </div>
@@ -113,7 +113,7 @@ function AddPatient() {
                 name="gender"
                 value={formData.gender}
                 onChange={handleChange}
-                className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
+                className="w-full py-2 px-3 bg-gray-300 text-md rounded-3xl"
                 required
               >
                 <option value="">Select Gender</option>
@@ -132,7 +132,7 @@ function AddPatient() {
                 name="appointmentDate"
                 value={formData.appointmentDate}
                 onChange={handleChange}
-                className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
+                className="w-full py-2 px-3 bg-gray-300 text-md rounded-3xl"
               />
             </div>
 
@@ -146,7 +146,7 @@ function AddPatient() {
                 name="courseCount"
                 value={formData.courseCount}
                 onChange={handleChange}
-                className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
+                className="w-full py-2 px-3 bg-gray-300 text-md rounded-3xl"
                 required
               />
             </div>

@@ -3,6 +3,14 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "@remix-run/react";
 import { format } from "date-fns";
+import SideNavBar from "./_SNB";
+import {
+  Button,
+  Card,
+  Input,
+  SectionHeading,
+  Table,
+} from "~/presentation/designSystem";
 import { useGetPatientList } from "~/presentation/hooks/patient/useGetPatientList";
 import { Patient } from "~/domain/entities/Patient";
 
@@ -40,175 +48,86 @@ const PatientList: React.FC = () => {
   if (error) return <p>{error}</p>;
 
   return (
-    <div
-      className="page-background"
-      style={{
-        backgroundColor: "#DCE8E9",
-        width: "100%",
-        minHeight: "100vh",
-        padding: "50px",
-        boxSizing: "border-box",
-      }}
-    >
-      <div
-        className="patientList-view-container"
-        style={{
-          width: "1120px",
-          height: "850px",
-          padding: "30px",
-          backgroundColor: "#ffffff",
-          borderRadius: "50px 5px 5px 50px",
-          boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
-          margin: "auto",
-        }}
-      >
-        <div
-          className="header"
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: "20px",
-          }}
-        >
-          <h2 style={{ fontSize: "28px", color: "#2F919C" }}>
-            List View Patient
-          </h2>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              cursor: "pointer",
-            }}
-            onClick={handleAddPatient}
-          >
-            <span
-              style={{
-                padding: "8px",
-                backgroundColor: "#f0c040",
-                borderRadius: "12px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                marginRight: "10px",
-              }}
+    <div className="flex min-h-screen bg-surface-muted">
+  
+      <main className="flex-1 p-8">
+        <Card>
+          <div className="flex items-center justify-between">
+            <SectionHeading title="List View Patient" />
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={handleAddPatient}
+              className="flex items-center gap-2"
             >
-              <FontAwesomeIcon icon={faUserPlus} style={{ color: "#000000" }} />
-            </span>
-            <span
-              style={{
-                color: "#000000",
-                textDecoration: "underline",
-                cursor: "pointer",
-              }}
-            >
-              Add new Patient
-            </span>
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-100 text-amber-800">
+                <FontAwesomeIcon icon={faUserPlus} />
+              </span>
+              Add new patient
+            </Button>
           </div>
-        </div>
 
-        <div
-          className="search-bar"
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            marginBottom: "20px",
-          }}
-        >
-          <input
-            type="text"
-            placeholder="searching..."
-            value={searchTerm}
-            onChange={handleSearch}
-            style={{
-              width: "300px",
-              padding: "10px",
-              borderRadius: "20px",
-              border: "1px solid #ccc",
-              fontSize: "16px",
-            }}
-          />
-        </div>
+          <div className="mb-4 flex justify-end">
+            <div className="w-80">
+              <Input
+                type="text"
+                placeholder="Search..."
+                value={searchTerm}
+                onChange={handleSearch}
+              />
+            </div>
+          </div>
 
-        <div
-          className="patientList"
-          style={{
-            backgroundColor: "#DCE8E9",
-            borderRadius: "10px",
-            padding: "20px",
-            maxHeight: "650px",
-            overflowY: "auto",
-          }}
-        >
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead>
-              <tr>
-                <th style={thTdStyle}>Patient ID</th>
-                <th style={thTdStyle}>Name Surname</th>
-                <th style={thTdStyle}>Phone Number</th>
-                <th style={thTdStyle}>Birthday</th>
-                <th style={thTdStyle}>Gender</th>
-                <th style={thTdStyle}>Appointment Date</th>
-                <th style={thTdStyle}>Course</th>
-                <th style={thTdStyle}></th>
+          <Table
+            headers={[
+              "Patient ID",
+              "Name Surname",
+              "Phone Number",
+              "Birthday",
+              "Gender",
+              "Appointment Date",
+              "Course",
+              "",
+            ]}
+          >
+            {filteredPatients.map((patient: Patient) => (
+              <tr
+                key={patient.patientId}
+                className="cursor-pointer hover:bg-slate-50"
+                onClick={() => handlePatientDetail(patient.patientId)}
+              >
+                <td className="px-4 py-3 text-md text-slate-900">{patient.patientId}</td>
+                <td className="px-4 py-3 text-md text-slate-900">{patient.nameSurname}</td>
+                <td className="px-4 py-3 text-md text-slate-900">{patient.phoneNumber}</td>
+                <td className="px-4 py-3 text-md text-slate-900">
+                  {format(new Date(patient.birthday), "dd/MM/yyyy")}
+                </td>
+                <td className="px-4 py-3 text-md text-slate-900">{patient.gender}</td>
+                <td className="px-4 py-3 text-md text-slate-900">
+                  {patient.appointmentDate
+                    ? format(new Date(patient.appointmentDate), "dd/MM/yyyy kk:mm")
+                    : "N/A"}
+                </td>
+                <td className="px-4 py-3 text-md text-slate-900">{patient.courseCount}</td>
+                <td className="px-4 py-3">
+                  <Button
+                    size="sm"
+                    variant="primary"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleSelectTreatment();
+                    }}
+                  >
+                    Select Treatment
+                  </Button>
+                </td>
               </tr>
-            </thead>
-            
-            <tbody>
-              {filteredPatients.map((patient: Patient) => (
-                <tr
-                  key={patient.patientId}
-                  style={{ borderBottom: "1px solid white", cursor: "pointer" }}
-                  onClick={() => handlePatientDetail(patient.patientId)}
-                >
-                  <td style={thTdStyle}>{patient.patientId}</td>
-                  <td style={thTdStyle}>{patient.nameSurname}</td>
-                  <td style={thTdStyle}>{patient.phoneNumber}</td>
-                  <td style={thTdStyle}>
-                    {format(new Date(patient.birthday), 'dd/MM/yyyy')}
-                  </td>
-                  <td style={thTdStyle}>{patient.gender}</td>
-                  <td style={thTdStyle}>
-                    {patient.appointmentDate
-                      ? format(new Date(patient.appointmentDate), 'dd/MM/yyyy kk:mm')
-                      : 'N/A'}
-                  </td>
-                  <td style={thTdStyle}>{patient.courseCount}</td>
-                  <td style={thTdStyle}>
-                    <button
-                      style={{
-                        ...buttonStyle,
-                        backgroundColor: "#2F919C",
-                        color: "white",
-                      }}
-                      onClick={handleSelectTreatment}
-                    >
-                      Select Treatment
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+            ))}
+          </Table>
+        </Card>
+      </main>
     </div>
   );
-};
-
-const buttonStyle: React.CSSProperties = {
-  backgroundColor: "#f0c040",
-  border: "none",
-  padding: "10px 20px",
-  borderRadius: "20px",
-  cursor: "pointer",
-  fontWeight: "bold",
-  transition: "background-color 0.3s ease",
-};
-
-const thTdStyle: React.CSSProperties = {
-  padding: "12px",
-  textAlign: "left",
 };
 
 export default PatientList;

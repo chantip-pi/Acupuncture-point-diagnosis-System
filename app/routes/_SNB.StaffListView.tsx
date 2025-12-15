@@ -17,6 +17,7 @@ import { getUserSession } from "~/presentation/session/userSession";
 import { setSelectedStaffUsername } from "~/presentation/session/staffSelectionSession";
 import ErrorPage from "~/routes/components/common/ErrorPage";
 import LoadingPage from "./components/common/LoadingPage";
+import { DateOfBirth } from "~/domain/value-objects/DateOfBirth";
 
 const StaffListView: React.FC = () => {
   const { staffList, loading, error } = useGetStaffList();
@@ -124,11 +125,10 @@ const StaffListView: React.FC = () => {
 
   return (
     <div className="flex min-h-screen bg-surface-muted">
-  <SideNavBar />
       <main className="flex-1 p-8">
         <Card>
           <div className="flex items-center justify-between">
-            <SectionHeading title="Staff List View" />
+            <SectionHeading title="Staff List" />
             {isManager && (
               <Button
                 variant="secondary"
@@ -139,12 +139,12 @@ const StaffListView: React.FC = () => {
                 <span className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-100 text-amber-800">
                   <FontAwesomeIcon icon={faUserPlus} />
                 </span>
-                Add new Staff
+                Add Staff
               </Button>
             )}
           </div>
 
-          <div className="mb-4 flex justify-end">
+          <div className="mb-4 flex justify-start">
             <div className="w-80">
               <Input
                 type="text"
@@ -164,8 +164,8 @@ const StaffListView: React.FC = () => {
               headers={[
                 "Username",
                 "Name",
-                "Tel",
-                "Birth Day",
+                "Phone Number",
+                "Age",
                 "Gender",
                 "Role",
                 "Email",
@@ -199,7 +199,7 @@ const StaffListView: React.FC = () => {
                     className="px-4 py-3 text-md text-slate-900"
                     onClick={() => handleClickList(staff.username)}
                   >
-                    {format(new Date(staff.birthday), "dd/MM/yyyy")}
+                    {DateOfBirth.create(staff.birthday).calculateAge()}
                   </td>
                   <td
                     className="px-4 py-3 text-md text-slate-900"

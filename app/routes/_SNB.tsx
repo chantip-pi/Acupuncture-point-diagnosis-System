@@ -1,7 +1,7 @@
 import React from "react";
 import { IoMdHome } from "react-icons/io";
-import { IoPersonAddSharp } from "react-icons/io5";
 import { FaUser, FaWrench } from "react-icons/fa";
+import { FaUserDoctor } from "react-icons/fa6";
 import { RiExchange2Fill } from "react-icons/ri";
 import { Outlet, useNavigate } from "@remix-run/react";
 import { useRequireAuth } from "~/presentation/hooks/staff/useRequireAuth";
@@ -13,8 +13,8 @@ import {
 
 const navItems = [
   { label: "Home", icon: <IoMdHome size={22} />, to: "/home" },
-  { label: "Staff List", icon: <FaUser size={18} />, to: "/staffListView" },
-  { label: "Add Patient", icon: <IoPersonAddSharp size={18} />, to: "/addPatient" },
+  { label: "Manage Staff", icon: <FaUserDoctor size={18} />, to: "/staffListView" },
+  { label: "Manage Patient", icon: <FaUser size={18} />, to: "/patientList" },
   { label: "Income / Expenses", icon: <RiExchange2Fill size={20} />, to: "/incomeExpenses" },
   { label: "Equipment", icon: <FaWrench size={18} />, to: "/equipment" },
   { label: "Medical Record", icon: <FaClipboardList size={20} />, to: "/medicalRecord" },
@@ -32,7 +32,7 @@ function SideNavBar() {
 
   React.useEffect(() => {
     const session = getUserSession();
-    setCurrentUser(session?.username ?? "Guest");
+    setCurrentUser(session?.nameSurname ?? "Guest");
   }, []);
 
   return (
@@ -43,7 +43,7 @@ function SideNavBar() {
       >
         <div className="px-6 py-8">
           <p className="text-md uppercase tracking-widest text-white/80">Clinic Application</p>
-          <h1 className="mt-2 text-2xl font-semibold">{currentUser}</h1>
+          <h1 className="mt-2 text-2xl font-semibold text-white">{currentUser}</h1>
         </div>
 
         <nav className="flex-1 px-4">

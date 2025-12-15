@@ -13,6 +13,7 @@ import {
 } from "~/presentation/designSystem";
 import { useGetPatientList } from "~/presentation/hooks/patient/useGetPatientList";
 import { Patient } from "~/domain/entities/Patient";
+import { DateOfBirth } from "~/domain/value-objects/DateOfBirth";
 
 const PatientList: React.FC = () => {
   const navigate = useNavigate();
@@ -53,7 +54,7 @@ const PatientList: React.FC = () => {
       <main className="flex-1 p-8">
         <Card>
           <div className="flex items-center justify-between">
-            <SectionHeading title="List View Patient" />
+            <SectionHeading title="Patient List" />
             <Button
               variant="secondary"
               size="sm"
@@ -63,11 +64,11 @@ const PatientList: React.FC = () => {
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-100 text-amber-800">
                 <FontAwesomeIcon icon={faUserPlus} />
               </span>
-              Add new patient
+              Add Patient
             </Button>
           </div>
 
-          <div className="mb-4 flex justify-end">
+          <div className="mb-4 flex justify-start">
             <div className="w-80">
               <Input
                 type="text"
@@ -83,10 +84,10 @@ const PatientList: React.FC = () => {
               "Patient ID",
               "Name Surname",
               "Phone Number",
-              "Birthday",
+              "Age",
               "Gender",
-              "Appointment Date",
-              "Course",
+              "Upcoming Appointment",
+              "Remaining Course",
               "",
             ]}
           >
@@ -100,7 +101,7 @@ const PatientList: React.FC = () => {
                 <td className="px-4 py-3 text-md text-slate-900">{patient.nameSurname}</td>
                 <td className="px-4 py-3 text-md text-slate-900">{patient.phoneNumber}</td>
                 <td className="px-4 py-3 text-md text-slate-900">
-                  {format(new Date(patient.birthday), "dd/MM/yyyy")}
+                  { DateOfBirth.create(patient.birthday).calculateAge()}
                 </td>
                 <td className="px-4 py-3 text-md text-slate-900">{patient.gender}</td>
                 <td className="px-4 py-3 text-md text-slate-900">

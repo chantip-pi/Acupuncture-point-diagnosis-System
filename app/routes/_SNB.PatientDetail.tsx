@@ -9,6 +9,7 @@ import {
 } from "~/presentation/designSystem";
 import { useGetPatientById } from "~/presentation/hooks/patient/useGetPatientById";
 import { Patient } from "~/domain/entities/Patient";
+import { DateOfBirth } from "~/domain/value-objects/DateOfBirth";
 
 function PatientDetail() {
   const navigate = useNavigate();
@@ -84,7 +85,7 @@ function PatientDetail() {
                 { label: "Gender", value: patientData.gender || "N/A" },
                 {
                   label: "Age",
-                  value: patientData ? calculateAge(patientData.birthday) : "N/A",
+                  value: patientData ? DateOfBirth.create(patientData.birthday).calculateAge() : "N/A",
                 },
                 { label: "Tel", value: patientData.phoneNumber || "N/A" },
                 {
@@ -109,26 +110,6 @@ function PatientDetail() {
   );
 }
 
-function calculateAge(birthday: string): string {
-  if (!birthday) return "N/A";
-
-  const birthDate = new Date(birthday);
-  const today = new Date();
-
-  if (isNaN(birthDate.getTime())) {
-    return "Invalid Date";
-  }
-
-  let age = today.getFullYear() - birthDate.getFullYear();
-  const monthDifference = today.getMonth() - birthDate.getMonth();
-  const dayDifference = today.getDate() - birthDate.getDate();
-
-  if (monthDifference < 0 || (monthDifference === 0 && dayDifference < 0)) {
-    age--;
-  }
-
-  return String(age);
-}
 
 const formatDate = (timestamp: number | undefined): string => {
   if (!timestamp) return "N/A";

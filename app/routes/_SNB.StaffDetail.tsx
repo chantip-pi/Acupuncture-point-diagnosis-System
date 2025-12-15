@@ -10,6 +10,7 @@ import { getUserSession } from "~/presentation/session/userSession";
 import { getSelectedStaffUsername } from "~/presentation/session/staffSelectionSession";
 import ErrorPage from "./components/common/ErrorPage";
 import LoadingPage from "./components/common/LoadingPage";
+import { DateOfBirth } from "~/domain/value-objects/DateOfBirth";
 
 function StaffDetail() {
   const [username, setUsername] = useState<string | null>(null);
@@ -37,7 +38,7 @@ function StaffDetail() {
     } else {
       setUsername(session.username);
     }
-    
+
     setIsSessionLoaded(true);
   }, []);
 
@@ -46,7 +47,8 @@ function StaffDetail() {
 
   const age = useMemo(() => {
     if (!staff) return "";
-    return calculateAge(staff.birthday);
+    return DateOfBirth.create(staff.birthday).calculateAge()
+
   }, [staff]);
 
   // While we haven't loaded the session on the client yet, keep UI consistent
@@ -88,7 +90,7 @@ function StaffDetail() {
 
   return (
     <div className="flex min-h-screen bg-surface-muted">
-  
+
       <main className="flex-1 p-8">
         <Card className="max-w-3xl">
           <SectionHeading title="Staff Details" />
@@ -119,23 +121,5 @@ function StaffDetail() {
   );
 }
 
-// Utility function to calculate age from birthday
-function calculateAge(birthday: string): string {
-  const birthDate = new Date(birthday);
-  if (Number.isNaN(birthDate.getTime())) {
-    return "";
-  }
-
-  const today = new Date();
-  let age = today.getFullYear() - birthDate.getFullYear();
-  const monthDifference = today.getMonth() - birthDate.getMonth();
-  const dayDifference = today.getDate() - birthDate.getDate();
-
-  if (monthDifference < 0 || (monthDifference === 0 && dayDifference < 0)) {
-    age--;
-  }
-
-  return String(age);
-}
 
 export default StaffDetail;

@@ -37,7 +37,8 @@ function LogIn() {
     }
 
     // Login successful: go to home page
-    navigate("/home");
+    // TODO: navigate toe /home when getTodayAppointment is implemented
+    navigate("/staffListView");
   };
 
   return (

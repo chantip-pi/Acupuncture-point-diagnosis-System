@@ -1,0 +1,11 @@
+.heading-title {
+  font-size: 1.5rem; /* text-2xl */
+}
+
+.label {
+  font-size: 0.5rem;  /* text-lg */
+}
+
+.details {
+  font-size: 0.25rem;
+}

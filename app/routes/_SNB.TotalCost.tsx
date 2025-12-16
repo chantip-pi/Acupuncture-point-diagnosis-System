@@ -25,7 +25,7 @@ interface Patient {
   phoneNumber: string;
   birthday: string;
   gender: string;
-  courseCount: number;
+  remainingCourse: number;
   appointmentDate: string | null;
   firstVistDate: string;
 }
@@ -148,7 +148,7 @@ const TotalCost: React.FC = () => {
         const data = await response.json();
 
         if (Array.isArray(data) && data.length > 0) {
-          setCourse(data[0].courseCount);
+          setCourse(data[0].remainingCourse);
         } else {
           console.error("No course data found.");
           setCourse(0);
@@ -418,7 +418,7 @@ const TotalCost: React.FC = () => {
             appointmentDate: newAppointmentDate
               ? new Date(newAppointmentDate).toISOString()
               : data[0].appointmentDate,
-            courseCount: course,
+            remainingCourse: course,
             firstVistDate: data[0].firstVistDate,
           };
 

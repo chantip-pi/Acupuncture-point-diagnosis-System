@@ -20,8 +20,8 @@ export class PatientValidationService {
     }
   }
 
-  static validateCourseCount(courseCount: number): boolean {
-    return courseCount >= 0 && !isNaN(courseCount);
+  static validateremainingCourse(remainingCourse: number): boolean {
+    return remainingCourse >= 0 && !isNaN(remainingCourse);
   }
 
   static validateAppointmentDate(appointmentDate: string): boolean {

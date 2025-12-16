@@ -1,6 +1,6 @@
 import React, { useState, ChangeEvent, FormEvent } from "react";
 import { useNavigate } from "@remix-run/react";
-import { useAddPatient } from "~/presentation/hooks/useAddPatient";
+import { useAddPatient } from "~/presentation/hooks/patient/useAddPatient";
 
 function AddPatient() {
   const [formData, setFormData] = useState({
@@ -9,7 +9,7 @@ function AddPatient() {
     birthday: "",
     gender: "",
     appointmentDate: "",
-    courseCount: 0,
+    remainingCourse: 0,
     firstVistDate: new Date().toISOString().slice(0, 10),
   });
   const { addPatient, loading, error: hookError } = useAddPatient();
@@ -20,7 +20,7 @@ function AddPatient() {
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
-      [name]: name === "courseCount" ? Number(value) : value,
+      [name]: name === "remainingCourse" ? Number(value) : value,
     }));
   };
 
@@ -39,7 +39,7 @@ function AddPatient() {
       birthday: formData.birthday,
       gender: formData.gender,
       appointmentDate: new Date(formData.appointmentDate).toISOString(),
-      courseCount: formData.courseCount,
+      remainingCourse: formData.remainingCourse,
       firstVistDate: formData.firstVistDate,
     });
 
@@ -69,7 +69,7 @@ function AddPatient() {
                 name="nameSurname"
                 value={formData.nameSurname}
                 onChange={handleChange}
-                className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
+                className="w-full py-2 px-3 bg-gray-300 text-md rounded-3xl"
                 required
               />
             </div>
@@ -84,7 +84,7 @@ function AddPatient() {
                 name="phoneNumber"
                 value={formData.phoneNumber}
                 onChange={handleChange}
-                className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
+                className="w-full py-2 px-3 bg-gray-300 text-md rounded-3xl"
                 required
               />
             </div>
@@ -99,7 +99,7 @@ function AddPatient() {
                 name="birthday"
                 value={formData.birthday}
                 onChange={handleChange}
-                className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
+                className="w-full py-2 px-3 bg-gray-300 text-md rounded-3xl"
                 required
               />
             </div>
@@ -113,7 +113,7 @@ function AddPatient() {
                 name="gender"
                 value={formData.gender}
                 onChange={handleChange}
-                className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
+                className="w-full py-2 px-3 bg-gray-300 text-md rounded-3xl"
                 required
               >
                 <option value="">Select Gender</option>
@@ -132,21 +132,21 @@ function AddPatient() {
                 name="appointmentDate"
                 value={formData.appointmentDate}
                 onChange={handleChange}
-                className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
+                className="w-full py-2 px-3 bg-gray-300 text-md rounded-3xl"
               />
             </div>
 
             <div className="mb-4">
-              <label htmlFor="courseCount" className="block mb-1">
+              <label htmlFor="remainingCourse" className="block mb-1">
                 Course Count:
               </label>
               <input
                 type="number"
-                id="courseCount"
-                name="courseCount"
-                value={formData.courseCount}
+                id="remainingCourse"
+                name="remainingCourse"
+                value={formData.remainingCourse}
                 onChange={handleChange}
-                className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
+                className="w-full py-2 px-3 bg-gray-300 text-md rounded-3xl"
                 required
               />
             </div>

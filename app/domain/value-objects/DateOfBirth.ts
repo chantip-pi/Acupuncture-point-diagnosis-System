@@ -36,3 +36,34 @@ export class DateOfBirth {
   }
 }
 
+export class DateTimeHelper {
+  static formatDateTime(
+    input: Date | string | undefined,
+    format: string = "dd/MM/yyyy HH:mm"
+  ): string {
+    if (!input) return "N/A";
+
+    const date = input instanceof Date ? input : new Date(input);
+
+    if (isNaN(date.getTime())) return "Invalid date";
+
+    const map: Record<string, string> = {
+      dd: String(date.getDate()).padStart(2, "0"),
+      MM: String(date.getMonth() + 1).padStart(2, "0"),
+      yyyy: String(date.getFullYear()),
+      HH: String(date.getHours()).padStart(2, "0"),
+      mm: String(date.getMinutes()).padStart(2, "0"),
+      ss: String(date.getSeconds()).padStart(2, "0"),
+    };
+
+    return format.replace(
+      /dd|MM|yyyy|HH|mm|ss/g,
+      (token) => map[token]
+    );
+  }
+
+  static calculateAge(dateString: string): number {
+    return DateOfBirth.create(dateString).calculateAge();
+  }
+}
+

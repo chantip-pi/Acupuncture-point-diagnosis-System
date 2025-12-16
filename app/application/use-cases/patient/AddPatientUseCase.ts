@@ -15,22 +15,10 @@ export class AddPatientUseCase {
       throw new Error("Birthday cannot be in the future.");
     }
 
-    if (!PatientValidationService.validateCourseCount(dto.courseCount)) {
+    if (!PatientValidationService.validateremainingCourse(dto.remainingCourse)) {
       throw new Error("Course count cannot be negative.");
     }
 
-    if (!PatientValidationService.validateAppointmentDate(dto.appointmentDate)) {
-      throw new Error("You need to provide an appointment date.");
-    }
-
-    // Check appointment date availability
-    const existingPatients = await this.patientRepository.getByAppointmentDate(
-      new Date(dto.appointmentDate).toISOString()
-    );
-
-    if (existingPatients.length > 0) {
-      throw new Error("The selected appointment date is already taken. Please choose a different date.");
-    }
 
     // Create patient
     await this.patientRepository.create(dto);

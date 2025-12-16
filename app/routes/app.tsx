@@ -4,7 +4,7 @@ import Home from './_SNB.Home';
 import AddPatient from './_SNB.AddPatient';
 import TotalCost from './_SNB.TotalCost';
 import TreatmentSelect from './_SNB.TreatmentSelect';
-import StaffListView from './StaffListView';
+import StaffListView from './_SNB.StaffListView';
 import Equipment from './Equipment';
 import IncomeExpenses from './_SNB.IncomeExpenses';
 import PatientList from './_SNB.PatientList';

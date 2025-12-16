@@ -1,49 +1,40 @@
 import { IStaffRepository } from "~/domain/repositories/IStaffRepository";
 import { Staff } from "~/domain/entities/Staff";
-import { HttpClient } from "../http/HttpClient";
-import { API_CONFIG } from "../config/api.config";
+import { StaffDataSource } from "../datasource/StaffDataSource";
 
+/**
+ * This can be easily swapped with  MockDataSource in dataSource field.
+ */
 export class StaffRepository implements IStaffRepository {
-  constructor(private readonly httpClient: HttpClient) {}
+  constructor(private readonly dataSource: StaffDataSource) {}
 
   async getAll(): Promise<Staff[]> {
-    const data = await this.httpClient.get<Staff[]>(API_CONFIG.endpoints.staff.list);
-    return Array.isArray(data) ? data : [];
+    return this.dataSource.getAll();
   }
 
   async getById(id: number): Promise<Staff | null> {
-    const data = await this.httpClient.get<Staff[]>(API_CONFIG.endpoints.staff.getById(id));
-    return Array.isArray(data) && data.length > 0 ? data[0] : null;
+    return this.dataSource.getById(id);
   }
 
   async getByUsername(username: string): Promise<Staff | null> {
-    const data = await this.httpClient.get<Staff[]>(
-      API_CONFIG.endpoints.staff.getByUsername(username)
-    );
-    return Array.isArray(data) && data.length > 0 ? data[0] : null;
+    return this.dataSource.getByUsername(username);
   }
 
   async login(username: string, password: string): Promise<Staff | null> {
-    const data = await this.httpClient.get<Staff[]>(
-      API_CONFIG.endpoints.staff.login(username, password)
-    );
-    return Array.isArray(data) && data.length > 0 && data[0].staffId ? data[0] : null;
+    return this.dataSource.login(username,password);
+
   }
 
   async create(staff: Omit<Staff, "staffId">): Promise<Staff> {
-    const data = await this.httpClient.post<Staff>(
-      API_CONFIG.endpoints.staff.create,
-      staff
-    );
-    return data;
+    return this.dataSource.create(staff);
   }
 
   async update(staff: Staff): Promise<Staff> {
-    const data = await this.httpClient.post<Staff>(
-      API_CONFIG.endpoints.staff.update,
-      staff
-    );
-    return data;
+    return this.dataSource.update(staff);
+  }
+
+  async delete(staffId: number): Promise<void> {
+    return this.dataSource.delete(staffId);
   }
 }
 

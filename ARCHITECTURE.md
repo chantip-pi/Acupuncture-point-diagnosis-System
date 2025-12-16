@@ -47,12 +47,6 @@ Contains use cases and DTOs that orchestrate domain logic.
 
 Handles external concerns like API calls and data persistence.
 
-#### Configuration (`app/infrastructure/config/`)
-- **api.config.ts**: Centralized API endpoint configuration
-
-#### HTTP Client (`app/infrastructure/http/`)
-- **HttpClient.ts**: Abstract HTTP client interface and Fetch implementation
-
 #### Repositories (`app/infrastructure/repositories/`)
 - **PatientRepository.ts**: Implementation of IPatientRepository using HTTP client
 - **StaffRepository.ts**: Implementation of IStaffRepository using HTTP client
@@ -112,9 +106,6 @@ const handleSubmit = async () => {
 };
 ```
 
-## Configuration
-
-API endpoints are centralized in `app/infrastructure/config/api.config.ts`. To change the API base URL, update this file.
 
 ## Dependencies Flow
 
@@ -131,12 +122,8 @@ Infrastructure ←────┘
 
 This ensures Domain and Application layers are independent of external frameworks and libraries.
 
-### How to Use MockDatasource:
-Mock datasource (default): Works out of the box. The app uses the mock datasource by default.
-Switch to real API: Set environment variable USE_MOCK_DATASOURCE=false or VITE_USE_MOCK_DATASOURCE=false
 
 ### Adding a Real Database in the Future:
-1. Create a DatabaseDataSource class (similar to MockDataSource)
+1. Create a DatabaseDataSource class 
 2. Create DatabasePatientRepository and DatabaseStaffRepository
-3. Add "database" to the DatasourceType in datasource.config.ts
-4. Update the DI container to handle the "database" case
+3. Update the DI container to handle the "database" case

@@ -35,9 +35,7 @@ export class MockDataSource {
         phoneNumber: "0812345678",
         birthday: "1988-04-12",
         gender: "Female",
-        appointmentDate: "2025-11-20T09:00:00Z",
-        courseCount: 3,
-        firstVistDate: "2024-01-15",
+        remainingCourse: 3,
       },
       {
         patientId: 2,
@@ -45,9 +43,7 @@ export class MockDataSource {
         phoneNumber: "0823456789",
         birthday: "1975-11-02",
         gender: "Male",
-        appointmentDate: "2025-11-21T10:30:00Z",
-        courseCount: 5,
-        firstVistDate: "2023-12-10",
+        remainingCourse: 5,
       },
     ];
 
@@ -103,16 +99,6 @@ export class MockDataSource {
     return this.patients.find((p) => p.patientId === id) || null;
   }
 
-  async getPatientsByAppointmentDate(date: string): Promise<Patient[]> {
-    await this.simulateDelay();
-    // Normalize date for comparison (compare date part only)
-    const targetDate = new Date(date).toISOString().split("T")[0];
-    return this.patients.filter((p) => {
-      if (!p.appointmentDate) return false;
-      const patientDate = new Date(p.appointmentDate).toISOString().split("T")[0];
-      return patientDate === targetDate;
-    });
-  }
 
   async createPatient(patient: Omit<Patient, "patientId">): Promise<Patient> {
     await this.simulateDelay();

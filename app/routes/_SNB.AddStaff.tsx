@@ -1,6 +1,18 @@
 import { useNavigate } from "@remix-run/react";
 import React, { useState, ChangeEvent, FormEvent, useEffect } from "react";
-import { useAddStaff } from "~/presentation/hooks/useAddStaff";
+import SideNavBar from "./_SNB";
+import {
+  Button,
+  Card,
+  FormField,
+  Input,
+  SectionHeading,
+  Select,
+} from "~/presentation/designSystem";
+import { useAddStaff } from "~/presentation/hooks/staff/useAddStaff";
+import { getUserSession } from "~/presentation/session/userSession";
+import ErrorPage from "./components/common/ErrorPage";
+import LoadingPage from "./components/common/LoadingPage";
 
 function SignUp() {
   const navigate = useNavigate();
@@ -18,6 +30,23 @@ function SignUp() {
 
   const { addStaff, loading, error: hookError } = useAddStaff();
   const [error, setError] = useState<string>("");
+  const [isSessionLoaded, setIsSessionLoaded] = useState<boolean>(false);
+  const [isManager, setIsManager] = useState<boolean>(false);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+
+  useEffect(() => {
+    const session = getUserSession();
+    if (!session) {
+      setIsLoggedIn(false);
+      setIsManager(false);
+      setIsSessionLoaded(true);
+      return;
+    }
+
+    setIsLoggedIn(true);
+    setIsManager(session.role?.toLowerCase() === "manager");
+    setIsSessionLoaded(true);
+  }, []);
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -60,6 +89,43 @@ function SignUp() {
     return true;
   };
 
+  // While we haven't loaded the session on the client yet, keep UI consistent
+  if (!isSessionLoaded) {
+    return <LoadingPage />;
+  }
+
+  // If user is not logged in, show access denied page without sidebar
+  if (!isLoggedIn) {
+    const handleGoBack = () => {
+      window.history.back();
+    };
+
+    return (
+      <div className="page-background" style={{ backgroundColor: "#DCE8E9", width: "100%", minHeight: "100vh", padding: "50px", boxSizing: "border-box", display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <ErrorPage
+          message="You don't have access to this page."
+          onRetry={handleGoBack}
+        />
+      </div>
+    );
+  }
+
+  // If user is not a manager, block access with error page without sidebar
+  if (!isManager) {
+    const handleGoBack = () => {
+      window.history.back();
+    };
+
+    return (
+      <div className="page-background" style={{ backgroundColor: "#DCE8E9", width: "100%", minHeight: "100vh", padding: "50px", boxSizing: "border-box", display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <ErrorPage
+          message="You don't have access to this page."
+          onRetry={handleGoBack}
+        />
+      </div>
+    );
+  }
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -92,169 +158,132 @@ function SignUp() {
   };
 
   return (
-    <div className="flex flex-row w-[78svw]">
-      <div className="flex flex-row justify-center items-start w-[75svw] pt-10 pb-7">
-        <div className="p-6 border border-gray-300 h-[125svh] rounded-3xl bg-white shadow-lg w-[40svw]">
-          <div className="flex flex-row justify-between mb-6">
-            <h1 className="text-[#1FA1AF] text-2xl">Sign up new staff</h1>
-          </div>
-
-          <form onSubmit={handleSubmit}>
-            <div className="mb-4">
-              <label htmlFor="username" className="block mb-1">
-                Username:
-              </label>
-              <input
+    <div className="flex min-h-screen bg-surface-muted">
+  
+      <main className="flex-1 p-8">
+        <Card className="max-w-3xl">
+          <SectionHeading title="Sign up new staff" />
+          <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <FormField label="Username">
+              <Input
                 type="text"
                 id="username"
                 name="username"
                 value={formData.username}
                 onChange={handleChange}
-                className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
                 required
               />
-            </div>
+            </FormField>
 
-            <div className="mb-4">
-              <label htmlFor="nameSurname" className="block mb-1">
-                Name:
-              </label>
-              <input
+            <FormField label="Name">
+              <Input
                 type="text"
                 id="nameSurname"
                 name="nameSurname"
                 value={formData.nameSurname}
                 onChange={handleChange}
-                className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
                 required
               />
-            </div>
+            </FormField>
 
-            <div className="mb-4">
-              <label htmlFor="phoneNumber" className="block mb-1">
-                Telephone:
-              </label>
-              <input
+            <FormField label="Telephone">
+              <Input
                 type="tel"
                 id="phoneNumber"
                 name="phoneNumber"
                 value={formData.phoneNumber}
                 onChange={handleChange}
-                className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
                 required
               />
-            </div>
+            </FormField>
 
-            <div className="mb-4">
-              <label htmlFor="birthday" className="block mb-1">
-                Birthday:
-              </label>
-              <input
+            <FormField label="Birthday">
+              <Input
                 type="date"
                 id="birthday"
                 name="birthday"
                 value={formData.birthday}
                 onChange={handleChange}
-                className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
                 required
               />
-            </div>
+            </FormField>
 
-            <div className="mb-4">
-              <label htmlFor="gender" className="block mb-1">
-                Gender:
-              </label>
-              <select
+            <FormField label="Gender">
+              <Select
                 id="gender"
                 name="gender"
                 value={formData.gender}
                 onChange={handleChange}
-                className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
                 required
               >
                 <option value="">Select Gender</option>
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
-              </select>
-            </div>
+              </Select>
+            </FormField>
 
-            <div className="mb-4">
-              <label htmlFor="role" className="block mb-1">
-                Role:
-              </label>
-              <select
+            <FormField label="Role">
+              <Select
                 id="role"
                 name="role"
                 value={formData.role}
                 onChange={handleChange}
-                className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
                 required
               >
                 <option value="">Select Role</option>
                 <option value="Staff">Staff</option>
                 <option value="Doctor">Doctor</option>
-                <option value="Nurse">Doctor</option>
-              </select>
-            </div>
+                <option value="Nurse">Nurse</option>
+              </Select>
+            </FormField>
 
-            <div className="mb-4">
-              <label htmlFor="email" className="block mb-1">
-                Email:
-              </label>
-              <input
+            <FormField label="Email">
+              <Input
                 type="email"
                 id="email"
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
                 required
               />
+            </FormField>
+
+            <div className="sm:col-span-1">
+              <FormField label="Password">
+                <Input
+                  type="password"
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                />
+              </FormField>
             </div>
 
-            <div className="mb-4">
-              <label htmlFor="password" className="block mb-1">
-                Password:
-              </label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
-                required
-              />
+            <div className="sm:col-span-1">
+              <FormField label="Confirm Password">
+                <Input
+                  type="password"
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  required
+                />
+              </FormField>
             </div>
 
-            <div className="mb-4">
-              <label htmlFor="confirmPassword" className="block mb-1">
-                Confirm Password:
-              </label>
-              <input
-                type="password"
-                id="confirmPassword"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
-                required
-              />
-            </div>
+            {error && <p className="text-md text-red-600 sm:col-span-2">{error}</p>}
 
-            {error && <p className="text-red-500 mb-4">{error}</p>}
-
-            <div className="flex justify-center mt-auto">
-              <button
-                type="submit"
-                className="w-1/2 py-2 px-4 bg-[#1FA1AF] text-white rounded-3xl"
-              >
+            <div className="sm:col-span-2 flex justify-end">
+              <Button type="submit" variant="primary">
                 Sign Up
-              </button>
+              </Button>
             </div>
           </form>
-        </div>
-      </div>
+        </Card>
+      </main>
     </div>
   );
 }

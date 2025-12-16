@@ -1,30 +1,64 @@
 import { useNavigate } from "@remix-run/react";
 import React, { useEffect, useState, FormEvent } from "react";
-import { getSelectedStaffUsername } from "~/presentation/session/staffSelectionSession";
+import SideNavBar from "./_SNB";
+import {
+  Button,
+  Card,
+  FormField,
+  Input,
+  SectionHeading,
+  Select,
+} from "~/presentation/designSystem";
+import { useGetStaffByUsername } from "~/presentation/hooks/staff/useGetStaffByUsername";
+import ErrorPage from "./components/common/ErrorPage";
+import LoadingPage from "./components/common/LoadingPage";
+import ConfirmDialog from "./components/common/ConfirmDialog";
+import { useUpdateStaff } from "~/presentation/hooks/staff/useUpdateStaff";
+import { useDeleteStaff } from "~/presentation/hooks/staff/useDeleteStaff";
 
-interface Staff {
-  staffId: number;
-  username: string;
-  staff_name: string;
-  phoneNumber: string;
-  birthday: string;
-  gender: string;
-  role: string;
-  email: string;
-}
+import { Staff } from "~/domain/entities/Staff";
+import { getSelectedStaffUsername } from "~/presentation/session/staffSelectionSession";
+import { getStaffByUsernameUseCase } from "~/infrastructure/di/container";
+import { getUserSession } from "~/presentation/session/userSession";
 
 function EditStaff() {
   const navigate = useNavigate();
-  const [staffData, setStaffData] = useState<Staff | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [currentUser, setCurrentUser] = useState<string>("Guest");
-  const [currentStaff, setCurrentStaff] = useState<string>("Guest");
+
+  // Load selected username on the client after hydration to avoid SSR/CSR mismatch
+  const [selectedUsername, setSelectedUsername] = useState<string | null>(null);
+  const [isSessionLoaded, setIsSessionLoaded] = useState(false);
+  const [isManager, setIsManager] = useState<boolean>(false);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+
+  useEffect(() => {
+    const session = getUserSession();
+    if (!session) {
+      setIsLoggedIn(false);
+      setIsManager(false);
+      setIsSessionLoaded(true);
+      return;
+    }
+
+    setIsLoggedIn(true);
+    setIsManager(session.role?.toLowerCase() === "manager");
+    
+    const username = getSelectedStaffUsername();
+    setSelectedUsername(username);
+    setIsSessionLoaded(true);
+  }, []);
+
+  const { staff, loading, error } = useGetStaffByUsername(selectedUsername);
+  const { updateStaff, loading: updateLoading, error: updateError } =
+    useUpdateStaff();
+  const { deleteStaff, loading: deleteLoading, error: deleteError } =
+    useDeleteStaff();
+
+  const [formError, setFormError] = useState<string | null>(null);
+  const [showDialog, setShowDialog] = useState(false);
 
   const [formData, setFormData] = useState({
-    staffId: "",
     username: "",
-    staff_name: "", 
+    nameSurname: "",
     phoneNumber: "",
     birthday: "",
     gender: "",
@@ -32,57 +66,87 @@ function EditStaff() {
     email: "",
   });
 
+  // When staff data is loaded, populate the form
   useEffect(() => {
-    const fetchData = async () => {
-      const storedStaff = getSelectedStaffUsername();
-      const currentStaffValue = storedStaff ? storedStaff.toLowerCase() : "guest";
-      setCurrentStaff(currentStaffValue);
-  
-      if (currentStaffValue === "guest") {
-        setError("No username found in session.");
-        setLoading(false);
-        return;
-      }
-  
-      try {
-        const response = await fetch(`https://dinosaur.prakasitj.com/staff/searchbyUsername/${currentStaffValue}`);
-        if (!response.ok) {
-          throw new Error("Failed to fetch staff data");
-        }
-  
-        const data = await response.json();
-        if (data.length > 0) {
-          setStaffData(data[0]);
-  
-          const formattedBirthday = data[0].birthday.split("T")[0];
-  
-          setFormData({
-            staffId: data[0].staffId,
-            username: data[0].username,
-            staff_name: data[0].staff_name,
-            phoneNumber: data[0].phoneNumber,
-            birthday: formattedBirthday,
-            gender: data[0].gender,
-            role: data[0].role,
-            email: data[0].email,
-          });
-        } else {
-          setError("No data found for this username.");
-        }
-      } catch (err) {
-        setError("Failed to load data");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
+    if (staff && staff.staffId) {
+      const formattedBirthday = staff.birthday.split("T")[0];
+
+      setFormData({
+        username: staff.username,
+        nameSurname: staff.nameSurname,
+        phoneNumber: staff.phoneNumber,
+        birthday: formattedBirthday,
+        gender: staff.gender,
+        role: staff.role,
+        email: staff.email,
+      });
+    }
+  }, [staff]);
+
+  // While we haven't loaded the session on the client yet, keep UI consistent
+  if (!isSessionLoaded) {
+    return <LoadingPage />;
+  }
+
+  // If user is not logged in, show access denied page without sidebar
+  if (!isLoggedIn) {
+    const handleGoBack = () => {
+      window.history.back();
     };
-  
-    fetchData();
-  }, []);
-   
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+
+    return (
+      <div className="page-background" style={{ backgroundColor: "#DCE8E9", width: "100%", minHeight: "100vh", padding: "50px", boxSizing: "border-box", display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <ErrorPage
+          message="You don't have access to this page."
+          onRetry={handleGoBack}
+        />
+      </div>
+    );
+  }
+
+  // If user is not a manager, block access with error page without sidebar
+  if (!isManager) {
+    const handleGoBack = () => {
+      window.history.back();
+    };
+
+    return (
+      <div className="page-background" style={{ backgroundColor: "#DCE8E9", width: "100%", minHeight: "100vh", padding: "50px", boxSizing: "border-box", display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <ErrorPage
+          message="You don't have access to this page."
+          onRetry={handleGoBack}
+        />
+      </div>
+    );
+  }
+
+  // If no staff is selected or user has no permission, block access
+  if (!selectedUsername || selectedUsername.toLowerCase() === "guest") {
+    return <ErrorPage message="No staff selected or no permission." />;
+  }
+
+  if (loading) {
+    return <LoadingPage />;
+  }
+
+  if (error) {
+    return (
+      <ErrorPage message={error} onRetry={() => window.location.reload()} />
+    );
+  }
+
+  if (!staff) {
+    return <ErrorPage message="No staff selected or staff not found." />;
+  }
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
-    const formattedValue = name === 'gender' ? value.charAt(0).toUpperCase() + value.slice(1) : value;
+    const formattedValue =
+      name === "gender"
+        ? value.charAt(0).toUpperCase() + value.slice(1)
+        : value;
 
     setFormData((prevData) => ({
       ...prevData,
@@ -92,226 +156,241 @@ function EditStaff() {
 
   const checkUsernameAvailability = async () => {
     try {
-      if (formData.username === staffData?.username) {
+      // If username hasn't changed, it's always valid
+      if (formData.username === staff.username) {
         return true;
       }
-  
-      const response = await fetch(`https://dinosaur.prakasitj.com/staff/searchbyUsername/${formData.username}`);
-      if (!response.ok) {
-        throw new Error("Error checking username availability");
+
+      // Check if another staff member already uses this username
+      try {
+        const existingStaff: Staff | null =
+          await getStaffByUsernameUseCase.execute(formData.username);
+
+        if (existingStaff && existingStaff.staffId !== staff.staffId) {
+          setFormError(
+            "Username already taken. Please choose another username.",
+          );
+          return false;
+        }
+
+        return true;
+      } catch {
+        // If lookup fails (e.g. user not found), treat as available
+        return true;
       }
-  
-      const data = await response.json();
-      if (data.length > 0) {
-        setError("Username already taken. Please choose another username.");
-        return false;
-      }
-  
-      return true;
     } catch (error) {
-      setError("Error checking username availability. Please try again.");
+      setFormError("Error checking username availability. Please try again.");
       console.error(error);
       return false;
     }
   };
-  
-  
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-  
+
     if (!validateForm()) return;
 
     const isUsernameAvailable = await checkUsernameAvailability();
     if (!isUsernameAvailable) return;
 
-    console.log("Form data being submitted:", formData); 
-  
+    console.log("Form data being submitted:", formData);
+
     submitToApi();
-  };  
+  };
 
   const submitToApi = async () => {
     try {
-      const response = await fetch("https://dinosaur.prakasitj.com/staff/editStaff", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-  
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Full error response:", errorData);
-        setError(errorData.message || "Failed to save staff data.");
-        return;
+      // Prepare DTO for update
+      const dto = {
+        staffId: staff.staffId,
+        password: staff.password,
+        ...formData,
+      };
+      const result = await updateStaff(dto);
+      if (result.success) {
+        console.log("Data successfully saved");
+        navigate("/staffListView");
+      } else {
+        setFormError(result.error || "Failed to save staff data.");
       }
-  
-      console.log("Data successfully saved");
-      navigate("/staffListView");
     } catch (err) {
-      setError("Error submitting data. Please try again.");
+      setFormError("Error submitting data. Please try again.");
       console.error("Request error:", err);
     }
   };
-  
+
   const validateForm = () => {
     const { phoneNumber, birthday, email } = formData;
     const telRegex = /^\d{10}$/;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailRegex.test(email)) {
-      setError("Your email is not the right pattern.");
+      setFormError("Your email is not the right pattern.");
       return false;
     }
 
     if (!telRegex.test(phoneNumber)) {
-      setError("Telephone number must be 10 digits.");
+      setFormError("Telephone number must be 10 digits.");
       return false;
     }
 
     const birthDate = new Date(birthday);
     const today = new Date();
     if (birthDate > today) {
-      setError("Birthday cannot be in the future.");
+      setFormError("Birthday cannot be in the future.");
       return false;
     }
 
     return true;
   };
 
+  const handleDeleteUser = async () => {
+    try {
+      await deleteStaff(staff.staffId);
+      navigate("/staffListView");
+    } catch (err) {
+      setFormError("Error deleting staff. Please try again.");
+    }
+  };
+
+
   return (
-    <div className="flex flex-col w-[70svw] bg-[#DCE8E9] min-h-screen">
-      <div className="flex justify-center items-center pt-12 pb-12">
-        <div className="p-6 border border-gray-300 rounded-3xl bg-white shadow-lg w-[50svw] flex flex-col">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-[#1FA1AF] text-2xl">Edit Staff</h1>
-            <span className="text-[#1FA1AF] text-2xl">{formData.staff_name}</span>
+    <div className="flex min-h-screen bg-surface-muted">
+      <main className="flex-1 p-8">
+        <Card className="max-w-3xl">
+          <div className="flex items-center justify-between">
+            <SectionHeading title="Edit Staff" />
+            <div className="flex items-center gap-3">
+              <span className="text-brand text-lg font-semibold">
+                {formData.nameSurname}
+              </span>
+              <Button
+                type="button"
+                variant="danger"
+                size="sm"
+                disabled={updateLoading || deleteLoading}
+                onClick={() => setShowDialog(true)}
+              >
+                Delete
+              </Button>
+            </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="flex flex-col flex-grow">
-            <div className="mb-4">
-              <label htmlFor="username" className="block mb-1">
-                Username:
-              </label>
-              <input
+          <ConfirmDialog
+            isOpen={showDialog}
+            title={`Delete ${formData.nameSurname}`}
+            message="Do you really want to delete this user?"
+            cancelText="Cancel"
+            isLoading={updateLoading}
+            onConfirm={handleDeleteUser}
+            onCancel={() => setShowDialog(false)}
+          />
+
+          <form
+            onSubmit={handleSubmit}
+            className="grid grid-cols-1 gap-4 sm:grid-cols-2"
+          >
+            <FormField label="Username">
+              <Input
                 type="text"
                 id="username"
                 name="username"
                 value={formData.username}
                 onChange={handleChange}
-                className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
                 required
               />
-            </div>
+            </FormField>
 
-            <div className="mb-4">
-              <label htmlFor="staff_name" className="block mb-1">
-                Name:
-              </label>
-              <input
+            <FormField label="Name">
+              <Input
                 type="text"
-                id="staff_name"
-                name="staff_name"
-                value={formData.staff_name}
+                id="nameSurname"
+                name="nameSurname"
+                value={formData.nameSurname}
                 onChange={handleChange}
-                className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
                 required
               />
-            </div>
+            </FormField>
 
-            <div className="mb-4">
-              <label htmlFor="phoneNumber" className="block mb-1">
-                Telephone:
-              </label>
-              <input
-                type="string"
+            <FormField label="Telephone">
+              <Input
+                type="text"
                 id="phoneNumber"
                 name="phoneNumber"
                 value={formData.phoneNumber}
                 onChange={handleChange}
-                className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
                 required
               />
-            </div>
+            </FormField>
 
-            <div className="mb-4">
-              <label htmlFor="birthday" className="block mb-1">
-                Birthday:
-              </label>
-              <input
+            <FormField label="Birthday">
+              <Input
                 type="date"
                 id="birthday"
                 name="birthday"
                 value={formData.birthday}
                 onChange={handleChange}
-                className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
                 required
               />
-            </div>
+            </FormField>
 
-            <div className="mb-4">
-              <label htmlFor="gender" className="block mb-1">
-                Gender:
-              </label>
-              <select
+            <FormField label="Gender">
+              <Select
                 id="gender"
                 name="gender"
                 value={formData.gender}
                 onChange={handleChange}
-                className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
                 required
               >
                 <option value="">Select Gender</option>
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
-              </select>
-            </div>
+              </Select>
+            </FormField>
 
-            <div className="mb-4">
-              <label htmlFor="role" className="block mb-1">
-                Role:
-              </label>
-              <select
+            <FormField label="Role">
+              <Select
                 id="role"
                 name="role"
                 value={formData.role}
                 onChange={handleChange}
-                className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
                 required
               >
                 <option value="">Select Role</option>
                 <option value="Staff">Staff</option>
                 <option value="Doctor">Doctor</option>
-              </select>
-            </div>
+              </Select>
+            </FormField>
 
-            <div className="mb-4">
-              <label htmlFor="email" className="block mb-1">
-                Email:
-              </label>
-              <input
+            <FormField label="Email">
+              <Input
                 type="email"
                 id="email"
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full py-2 px-3 bg-gray-300 text-sm rounded-3xl"
                 required
               />
-            </div>
+            </FormField>
 
-            {error && <p className="text-red-500 mb-4">{error}</p>}
+            {(formError || updateError) && (
+              <p className="text-md text-red-600 sm:col-span-2">
+                {formError || updateError}
+              </p>
+            )}
 
-            <div className="flex justify-center mt-auto">
-              <button
+            <div className="sm:col-span-2 flex justify-end">
+              <Button
                 type="submit"
-                className="w-1/2 py-2 px-4 bg-[#1FA1AF] text-white rounded-3xl"
+                variant="primary"
+                disabled={updateLoading}
               >
-                Save Changes
-              </button>
+                {updateLoading ? "Saving..." : "Save Changes"}
+              </Button>
             </div>
           </form>
-        </div>
-      </div>
+        </Card>
+      </main>
     </div>
   );
 }

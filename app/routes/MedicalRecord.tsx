@@ -61,7 +61,7 @@ function MedicalRecord() {
 
   return (
     <div className="flex flex-row h-[svh] bg-[#DCE8E9] overflow-hidden">
-      <SideNavBar />
+  
       <div
         className="flex flex-col flex-grow bg-white 
                     mr-[40px] ml-[100px] mt-[25px] mb-[25px]

@@ -42,7 +42,7 @@ function LogIn() {
   };
 
   return (
-    <PageShell className="items-center justify-center px-4">
+    <PageShell className="!items-center justify-center px-4">
       <Card className="w-full max-w-md">
         <SectionHeading
           title="Clinic"

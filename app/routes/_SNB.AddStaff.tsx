@@ -233,7 +233,6 @@ function SignUp() {
                 <option value="">Select Role</option>
                 <option value="Staff">Staff</option>
                 <option value="Doctor">Doctor</option>
-                <option value="Nurse">Nurse</option>
               </Select>
             </FormField>
 

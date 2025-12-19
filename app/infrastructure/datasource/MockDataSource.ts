@@ -36,6 +36,8 @@ export class MockDataSource {
         birthday: "1988-04-12",
         gender: "Female",
         remainingCourse: 3,
+        congenitalDisease: 'null',
+        surgeryHistory: 'null',
       },
       {
         patientId: 2,
@@ -44,6 +46,8 @@ export class MockDataSource {
         birthday: "1975-11-02",
         gender: "Male",
         remainingCourse: 5,
+        congenitalDisease: 'null',
+        surgeryHistory: 'null',
       },
     ];
 

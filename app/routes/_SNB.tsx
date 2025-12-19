@@ -15,8 +15,8 @@ const navItems = [
   { label: "Home", icon: <IoMdHome size={22} />, to: "/home" },
   { label: "Manage Staff", icon: <FaUserDoctor size={18} />, to: "/staffListView" },
   { label: "Manage Patient", icon: <FaUser size={18} />, to: "/patientList" },
-  { label: "Income / Expenses", icon: <RiExchange2Fill size={20} />, to: "/incomeExpenses" },
-  { label: "Equipment", icon: <FaWrench size={18} />, to: "/equipment" },
+  // { label: "Income / Expenses", icon: <RiExchange2Fill size={20} />, to: "/incomeExpenses" },
+  // { label: "Equipment", icon: <FaWrench size={18} />, to: "/equipment" },
   { label: "Medical Record", icon: <FaClipboardList size={20} />, to: "/medicalRecord" },
 ];
 
@@ -52,7 +52,7 @@ function SideNavBar() {
               <li key={item.to}>
                 <button
                   onClick={() => navigate(item.to)}
-                  className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left font-semibold transition hover:bg-white hover:text-brand"
+                  className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left font-semibold transition hover:!bg-white hover:text-brand"
                   style={{ backgroundColor: "transparent" }}
                 >
                   <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/10">

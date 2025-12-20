@@ -5,6 +5,8 @@ export interface Patient {
   birthday: string;
   gender: string;
   remainingCourse: number;
+  congenitalDisease: string;
+  surgeryHistory: string;
 }
 
 export class PatientEntity {
@@ -15,6 +17,8 @@ export class PatientEntity {
     public readonly birthday: string,
     public readonly gender: string,
     public readonly remainingCourse: number,
+    public readonly congenitalDisease: string,
+    public readonly surgeryHistory: string,
   ) {}
 
   static fromData(data: Patient): PatientEntity {
@@ -25,6 +29,8 @@ export class PatientEntity {
       data.birthday,
       data.gender,
       data.remainingCourse,
+      data.congenitalDisease,
+      data.surgeryHistory,
     );
   }
 
@@ -36,6 +42,8 @@ export class PatientEntity {
       birthday: this.birthday,
       gender: this.gender,
       remainingCourse: this.remainingCourse,
+      congenitalDisease: this.congenitalDisease,
+      surgeryHistory: this.surgeryHistory,
     };
   }
 

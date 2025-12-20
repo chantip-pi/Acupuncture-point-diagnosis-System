@@ -96,13 +96,13 @@ const PatientList: React.FC = () => {
 
           <Table
             headers={[
-              "Patient ID",
+              // "Patient ID",
               "Name Surname",
               "Phone Number",
               "Age",
               "Gender",
               "Upcoming Appointment",
-              "Remaining Course",
+              // "Remaining Course",
               "",
             ]}
           >
@@ -112,7 +112,7 @@ const PatientList: React.FC = () => {
                 className="cursor-pointer hover:bg-slate-50"
                 onClick={() => handlePatientDetail(patient.patientId)}
               >
-                <td className="px-4 py-3 text-md text-slate-900">{patient.patientId}</td>
+                {/* <td className="px-4 py-3 text-md text-slate-900">{patient.patientId}</td> */}
                 <td className="px-4 py-3 text-md text-slate-900">{patient.nameSurname}</td>
                 <td className="px-4 py-3 text-md text-slate-900">{patient.phoneNumber}</td>
                 <td className="px-4 py-3 text-md text-slate-900">
@@ -125,17 +125,19 @@ const PatientList: React.FC = () => {
                   {DateTimeHelper.formatDateTime(patient.birthday)
                     }
                 </td>
-                <td className="px-4 py-3 text-md text-slate-900">{patient.remainingCourse}</td>
+                {/* <td className="px-4 py-3 text-md text-slate-900">{patient.remainingCourse}</td> */}
                 <td className="px-4 py-3">
+                  {/* TODO: ทำให้ปุ่มหายไปถ้าคนไข้มี appointment อยู่แล้ว */}
                   <Button
                     size="sm"
                     variant="primary"
                     onClick={(e) => {
                       e.stopPropagation();
+                      {/* TODO: replace with pop up for creating appointment */}
                       handleSelectTreatment();
                     }}
                   >
-                    Select Treatment
+                    Add Appointment
                   </Button>
                 </td>
               </tr>

@@ -75,26 +75,27 @@ function PatientDetail() {
           <div className="mt-4">
             <InfoList
               items={[
-                { label: "Full Name", value: patientData.nameSurname || "N/A" },
-                { label: "Patient ID", value: String(patientData.patientId || "N/A") },
-                {
-                  label: "Upcoming Appointment",
-                  value: DateTimeHelper.formatDateTime(patientData.birthday)
-
-                },
-
+                { label: "Name Surname", value: patientData.nameSurname || "N/A" },
+                { label: "Phone Number", value: patientData.phoneNumber || "N/A" },
                 { label: "Gender", value: patientData.gender || "N/A" },
+                { label: "Congenital Disease", value: patientData.congenitalDisease || "N/A" },
                 {
                   label: "Age",
                   value: patientData
                     ? DateTimeHelper.calculateAge(patientData.birthday)
                     : "N/A",
                 },
-                { label: "Phone Number", value: patientData.phoneNumber || "N/A" },
+                { label: "Surgery History", value: patientData.surgeryHistory || "N/A" },
                 {
                   label: "Remaining Course",
                   value: String(patientData.remainingCourse || "0"),
                 },
+                {
+                  label: "Upcoming Appointment",
+                  value: DateTimeHelper.formatDateTime(patientData.birthday)
+
+                },
+                
               ]}
             />
           </div>

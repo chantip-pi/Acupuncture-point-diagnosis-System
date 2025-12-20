@@ -127,7 +127,7 @@ function StaffDetail() {
     <div className="flex min-h-screen bg-surface-muted">
 
       <main className="flex-1 p-8">
-        <Card className="max-w-3xl">
+        <Card>
         <div className="flex items-center justify-between">
           <SectionHeading title="Staff Details" />
           <div className="flex items-center gap-3">

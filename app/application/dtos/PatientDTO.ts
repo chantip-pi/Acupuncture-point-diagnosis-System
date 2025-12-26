@@ -3,7 +3,10 @@ export interface CreatePatientDTO {
   phoneNumber: string;
   birthday: string;
   gender: string;
+  appointmentDate: string;
   remainingCourse: number;
+  congenitalDisease: string;
+  surgeryHistory: string;
 }
 
 export interface UpdatePatientDTO {
@@ -12,6 +15,9 @@ export interface UpdatePatientDTO {
   phoneNumber: string;
   birthday: string;
   gender: string;
+  appointmentDate: string;
   remainingCourse: number;
+  congenitalDisease: string;
+  surgeryHistory: string;
 }
 

@@ -105,12 +105,6 @@ function AddPatient() {
     return <LoadingPage />;
   }
 
-  if (error) {
-    return (
-      <ErrorPage message={error} onRetry={() => window.location.reload()} />
-    );
-  }
-
   return (
     <div className="flex min-h-screen bg-surface-muted">
       <main className="flex-1 p-8">
@@ -175,7 +169,6 @@ function AddPatient() {
                 name="congenitalDisease"
                 value={formData.congenitalDisease}
                 onChange={handleChange}
-                required
               />
             </FormField>
 
@@ -186,7 +179,6 @@ function AddPatient() {
                 name="surgeryHistory"
                 value={formData.surgeryHistory}
                 onChange={handleChange}
-                required
               />
             </FormField>
 

@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent, FormEvent } from "react";
+import React, { useState, ChangeEvent, FormEvent, useEffect } from "react";
 import { useNavigate } from "@remix-run/react";
 import {
   Button,
@@ -9,6 +9,9 @@ import {
   Select,
 } from "~/presentation/designSystem";
 import { useAddPatient } from "~/presentation/hooks/patient/useAddPatient";
+import { getUserSession } from "~/presentation/session/userSession";
+import ErrorPage from "./components/common/ErrorPage";
+import LoadingPage from "./components/common/LoadingPage";
 
 function AddPatient() {
   const navigate = useNavigate();
@@ -18,7 +21,7 @@ function AddPatient() {
     phoneNumber: "",
     birthday: "",
     gender: "",
-    appointmentDate: "",
+    // appointmentDate: "",
     remainingCourse: 0,
     congenitalDisease: "",
     surgeryHistory: "",
@@ -26,7 +29,21 @@ function AddPatient() {
 
   const { addPatient, loading, error: hookError } = useAddPatient();
   const [error, setError] = useState<string>("");
+  const [isSessionLoaded, setIsSessionLoaded] = useState<boolean>(false);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
+  useEffect(() => {
+    const session = getUserSession();
+    if (!session) {
+      setIsLoggedIn(false);
+      setIsSessionLoaded(true);
+      return;
+    }
+  
+    setIsLoggedIn(true);
+    setIsSessionLoaded(true);
+  }, []);
+  
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -42,17 +59,17 @@ function AddPatient() {
     e.preventDefault();
     setError("");
 
-    if (!formData.appointmentDate) {
-      setError("You need to provide an appointment date.");
-      return;
-    }
+    // if (!formData.appointmentDate) {
+    //   setError("You need to provide an appointment date.");
+    //   return;
+    // }
 
     const result = await addPatient({
       nameSurname: formData.nameSurname,
       phoneNumber: formData.phoneNumber,
       birthday: formData.birthday,
       gender: formData.gender,
-      appointmentDate: new Date(formData.appointmentDate).toISOString(),
+      // appointmentDate: new Date(formData.appointmentDate).toISOString(),
       remainingCourse: formData.remainingCourse,
       congenitalDisease: formData.congenitalDisease,
       surgeryHistory: formData.surgeryHistory,
@@ -65,10 +82,39 @@ function AddPatient() {
     }
   };
 
+  if (!isSessionLoaded) {
+    return <LoadingPage />;
+  }
+
+  if (!isLoggedIn) {
+    const handleGoBack = () => {
+      window.history.back();
+    };
+
+    return (
+      <div className="page-background" style={{ backgroundColor: "#DCE8E9", width: "100%", minHeight: "100vh", padding: "50px", boxSizing: "border-box", display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <ErrorPage
+          message="You don't have access to this page."
+          onRetry={handleGoBack}
+        />
+      </div>
+    );
+  }
+
+  if (loading) {
+    return <LoadingPage />;
+  }
+
+  if (error) {
+    return (
+      <ErrorPage message={error} onRetry={() => window.location.reload()} />
+    );
+  }
+
   return (
     <div className="flex min-h-screen bg-surface-muted">
       <main className="flex-1 p-8">
-        <Card className="max-w-3xl">
+        <Card>
           <SectionHeading title="Add New Patient" />
 
           <form
@@ -144,7 +190,7 @@ function AddPatient() {
               />
             </FormField>
 
-            <FormField label="Appointment Date & Time">
+            {/* <FormField label="Appointment Date & Time">
               <Input
                 type="datetime-local"
                 id="appointmentDate"
@@ -152,7 +198,7 @@ function AddPatient() {
                 value={formData.appointmentDate}
                 onChange={handleChange}
               />
-            </FormField>
+            </FormField> */}
 
             <FormField label="Course Count">
               <Input
